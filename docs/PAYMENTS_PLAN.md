@@ -3,9 +3,10 @@
 > Status: **core built, in one process.** `src/server/tpi` has the switch state machine (write-ahead log,
 > reversal, resume after restart), three participants with double-entry ledgers and clearing accounts
 > (TacketPay `@tpay`, Tacket `@tacket` shops, and a Demo Bank Network for bank transfers), idempotent
-> handlers, demo-PIN accounts, collect requests, and an operator view at `/tpi`. It uses one SQLite file.
-> **Not built yet:** separate services and databases (§8), signed messages (§4, §11), DEEMED/ChkTxn timeouts,
-> settlement cycles (§7), and the Tacket repo's participant.
+> handlers, demo-PIN accounts, collect requests, an operator view at `/tpi`, and settlement cycles with
+> reconciliation (§7: on demand or hourly, zero-sum rule, recon exceptions; `src/server/tpi/settlement.ts`).
+> It uses one SQLite file. **Not built yet:** separate services and databases (§8), signed messages (§4, §11),
+> DEEMED/ChkTxn timeouts, signed settlement reports, and the Tacket repo's participant.
 > TPI is a UPI-style payment network for **demo money**. It moves money between independent systems that
 > each keep their own books, starting with two: **TacketPay** (customer wallets, this repo) and **Tacket**
 > (shops and their agents, a separate repo). When a TacketPay user pays a Tacket shop, TacketPay's ledger

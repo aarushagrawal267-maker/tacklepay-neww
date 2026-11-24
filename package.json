@@ -12,6 +12,7 @@
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
+    "smoke": "node scripts/smoke.mjs",
     "icons": "node scripts/build-icons.mjs",
     "check": "npm run typecheck && npm run lint && npm test"
   },
@@ -33,5 +34,6 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^3.2.7"
-  }
+  },
+  "license": "MIT"
 }
