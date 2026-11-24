@@ -1,14 +1,16 @@
 "use client";
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/Button";
 import { Stat } from "@/components/ui/Card";
 import { Badge, DemoNotice } from "@/components/ui/DemoBadge";
 import { Icon } from "@/components/ui/Icon";
+import { toast } from "@/components/ui/toast";
 import { Screen, ScrollBody } from "@/components/ui/Screen";
 import { TopBar } from "@/components/ui/TopBar";
 import { errorText, tpiApi } from "@/lib/api";
 import { formatShort, formatTime, groupRef } from "@/lib/format";
 import { formatMoney } from "@/lib/money";
-import { PARTICIPANTS, type NetworkView, type TxnState, type TxnView } from "@/lib/tpi";
+import { PARTICIPANTS, type NetworkView, type SettlementView, type TxnState, type TxnView } from "@/lib/tpi";
 
 const POLL_MS = 2000;
 
@@ -67,7 +69,7 @@ export function Network() {
           <>
             <div className="mt-5 grid grid-cols-2 gap-3">
               <Stat label="Demo money minted" value={formatMoney(view.totals.minted)} hint={`${view.counts.users} ${view.counts.users === 1 ? "person" : "people"} on TacketPay`} />
-              <Stat label="Payments settled" value={view.counts.success} tone="success" hint={`${view.counts.reversed} reversed · ${view.counts.failed} failed`} />
+              <Stat label="Payments completed" value={view.counts.success} tone="success" hint={`${view.counts.reversed} reversed · ${view.counts.failed} failed`} />
             </div>
 
             <p
@@ -93,6 +95,15 @@ export function Network() {
                     {p.role} · {p.accounts} {p.accounts === 1 ? "account" : "accounts"}
                     {p.clearing > 0 && ` · owes the network ${formatMoney(p.clearing)}`}
                     {p.clearing < 0 && ` · owed ${formatMoney(-p.clearing)} by the network`}
+                    {p.settled !== 0 && (
+                      <>
+                        {" · "}
+                        <span className="whitespace-nowrap">
+                          settled {p.settled > 0 ? "+" : "−"}
+                          {formatMoney(Math.abs(p.settled))}
+                        </span>
+                      </>
+                    )}
                   </p>
                 </li>
               ))}
@@ -100,6 +111,8 @@ export function Network() {
             <p className="mt-2 px-1 text-xs leading-relaxed text-text-3">
               Clearing positions are what each participant would settle with the others. They always add up to zero.
             </p>
+
+            <Settlement view={view.settlement} onSettled={setView} />
 
             <h2 className="mt-7 text-[0.8125rem] font-medium text-text-3">Recent payments</h2>
             {view.txns.length === 0 && <p className="mt-3 text-sm text-text-2">No payments yet. Pay someone and watch it go through each step here.</p>}
@@ -154,5 +167,82 @@ function TxnCard({ txn, open, onToggle }: { txn: TxnView; open: boolean; onToggl
         </div>
       )}
     </li>
+  );
+}
+
+/** Plan §7: close a cycle on demand, see each cycle's net positions, and any reconciliation exceptions. */
+function Settlement({ view, onSettled }: { view: SettlementView; onSettled: (v: NetworkView) => void }) {
+  const [busy, setBusy] = useState(false);
+  const settle = async () => {
+    setBusy(true);
+    try {
+      const { cycle, network } = await tpiApi.settle();
+      onSettled(network);
+      toast(`Cycle ${cycle.id} settled: ${cycle.txnCount} ${cycle.txnCount === 1 ? "payment" : "payments"}`);
+    } catch (err) {
+      toast(errorText(err), 4000);
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <section aria-labelledby="settlement-h">
+      <div className="mt-7 flex items-center justify-between gap-3">
+        <h2 id="settlement-h" className="text-[0.8125rem] font-medium text-text-3">
+          Settlement
+        </h2>
+        <Button size="sm" variant="tonal" icon="sync_alt" onClick={settle} disabled={busy || view.unsettled === 0}>
+          {busy ? "Settling…" : "Settle now"}
+        </Button>
+      </div>
+      <p className="mt-2 text-sm text-text-2">
+        {view.unsettled === 0
+          ? "Every finished payment is settled."
+          : `${view.unsettled} finished ${view.unsettled === 1 ? "payment is" : "payments are"} waiting for the next cycle.`}{" "}
+        Closing a cycle nets each participant&apos;s position, checks they sum to zero and moves clearing into each settlement account.
+      </p>
+
+      {view.exceptions.length > 0 ? (
+        <div role="alert" className="mt-3 rounded-xl bg-danger-soft px-3.5 py-3 text-sm text-danger">
+          <p className="flex items-center gap-2 font-medium">
+            <Icon name="warning" size={18} />
+            {view.exceptions.length} reconciliation {view.exceptions.length === 1 ? "exception" : "exceptions"}
+          </p>
+          <ul className="mt-2 space-y-1 text-xs">
+            {view.exceptions.slice(0, 8).map((e, i) => (
+              <li key={i} className="money break-all">
+                RRN {groupRef(e.rrn)} · {PARTICIPANTS[e.participant].name}: {e.problem}
+              </li>
+            ))}
+          </ul>
+        </div>
+      ) : (
+        <p className="mt-3 flex items-center gap-2 rounded-xl bg-success-soft px-3.5 py-3 text-sm text-success">
+          <Icon name="verified" size={18} />
+          Reconciled: every participant&apos;s books match the switch.
+        </p>
+      )}
+
+      {view.cycles.length > 0 && (
+        <ul className="mt-3 divide-y divide-line rounded-2xl bg-surface-2">
+          {view.cycles.map((c) => (
+            <li key={c.id} className="px-4 py-3">
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="text-[0.9375rem] font-medium">Cycle {c.id}</span>
+                <span className="money text-xs text-text-2">
+                  {formatShort(c.closedAt)} {formatTime(c.closedAt)} · {c.trigger === "timer" ? "auto" : "manual"}
+                </span>
+              </div>
+              <p className="mt-0.5 text-xs text-text-2">
+                {c.txnCount} {c.txnCount === 1 ? "payment" : "payments"} · {formatMoney(c.gross)} gross
+              </p>
+              <p className="money mt-1 text-xs text-text-2">
+                {c.positions.map((p) => `${PARTICIPANTS[p.participant].name} ${p.net >= 0 ? "+" : "−"}${formatMoney(Math.abs(p.net))}`).join(" · ")}
+              </p>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }

@@ -4,7 +4,7 @@
 import { toast } from "@/components/ui/toast";
 import { formatMoney } from "./money";
 import { applySnapshot, clearLocal, getState } from "./store";
-import { TPI_ERROR_COPY, type NetworkView, type Snapshot, type TpiErrorCode, type TxnState } from "./tpi";
+import { TPI_ERROR_COPY, type NetworkView, type SettlementCycleView, type Snapshot, type TpiErrorCode, type TxnState } from "./tpi";
 import type { Contact, TxMethod } from "./types";
 
 export class ApiError extends Error {
@@ -94,6 +94,8 @@ export const tpiApi = {
   /** TPI's ValAdd: who owns this ID or phone number? */
   resolve: (body: { handle?: string; phone?: string; name?: string }) => call<{ contact: Contact }>("/api/wallet/resolve", { body }),
   network: () => call<NetworkView>("/api/tpi/network"),
+  /** Close a settlement cycle now (operator console). */
+  settle: () => call<{ cycle: SettlementCycleView; network: NetworkView }>("/api/tpi/settlement", { body: {} }),
 };
 
 let inflight: Promise<void> | null = null;

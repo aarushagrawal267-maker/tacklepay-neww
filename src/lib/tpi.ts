@@ -78,7 +78,9 @@ export type TpiErrorCode =
   | "SELF_PAYMENT"
   | "NOT_SUPPORTED"
   | "REQUEST_NOT_PAYABLE"
-  | "AMOUNT_MISMATCH";
+  | "AMOUNT_MISMATCH"
+  | "RECON_MISMATCH"
+  | "NOTHING_TO_SETTLE";
 
 export const TPI_ERROR_COPY: Record<TpiErrorCode, string> = {
   OFFLINE: "Can't reach the TPI server. Check your connection and try again",
@@ -105,6 +107,8 @@ export const TPI_ERROR_COPY: Record<TpiErrorCode, string> = {
   NOT_SUPPORTED: "That isn't supported on TPI yet",
   REQUEST_NOT_PAYABLE: "This request was already paid, declined or cancelled",
   AMOUNT_MISMATCH: "The amount doesn't match the request",
+  RECON_MISMATCH: "Settlement refused: a participant's books don't match the switch. See the reconciliation exceptions",
+  NOTHING_TO_SETTLE: "Every finished payment is already settled",
 };
 
 /** Everything the app shows for the signed-in person, rebuilt from the server's books. */
@@ -138,6 +142,34 @@ export interface TxnView {
   events: { state: TxnState; msg: string; at: number }[];
 }
 
+/** A payment whose switch record and participant books disagree (plan §7, recon). */
+export interface ReconException {
+  txnId: string;
+  rrn: string;
+  state: TxnState;
+  participant: ParticipantId;
+  problem: string;
+}
+
+export interface SettlementCycleView {
+  id: number;
+  openedAt: number;
+  closedAt: number;
+  txnCount: number;
+  /** Sum of the successful payments settled in this cycle, in paise. */
+  gross: number;
+  trigger: "manual" | "timer";
+  /** Net position per participant: positive means the network paid it, negative means it paid the network. */
+  positions: { participant: ParticipantId; net: number; txnCount: number }[];
+}
+
+export interface SettlementView {
+  /** Finished payments (SUCCESS or REVERSED) not yet in a cycle. */
+  unsettled: number;
+  cycles: SettlementCycleView[];
+  exceptions: ReconException[];
+}
+
 export interface NetworkView {
   participants: {
     id: ParticipantId;
@@ -146,8 +178,11 @@ export interface NetworkView {
     accounts: number;
     holdings: number;
     clearing: number;
+    /** Cumulative net settled with the network across all closed cycles. */
+    settled: number;
   }[];
   totals: { minted: number; held: number; clearing: number; ledgerSum: number };
   counts: { users: number; success: number; reversed: number; failed: number };
   txns: TxnView[];
+  settlement: SettlementView;
 }

@@ -4,6 +4,7 @@ import { PARTICIPANTS, type NetworkView, type ParticipantId, type TpiErrorCode, 
 import { atomic, sql, type Tpi } from "./db";
 import { ensureSystemAccounts, ledgerSum, systemAccount } from "./ledger";
 import type { TxnRow } from "./records";
+import { settledTotals, settlementView } from "./settlement";
 
 const PIDS = Object.keys(PARTICIPANTS) as ParticipantId[];
 
@@ -22,12 +23,13 @@ export function bootstrap(t: Tpi) {
 
 export function networkView(t: Tpi, limit = 40): NetworkView {
   const balanceOf = (id: string) => (sql(t, "SELECT balance FROM ledger_accounts WHERE id = ?").get(id) as { balance: number } | undefined)?.balance ?? 0;
+  const settled = settledTotals(t);
   const participants = PIDS.map((id) => {
     const row = sql(t, "SELECT COUNT(*) AS n, COALESCE(SUM(balance), 0) AS held FROM ledger_accounts WHERE participant = ? AND system = 0").get(id) as {
       n: number;
       held: number;
     };
-    return { id, ...PARTICIPANTS[id], accounts: row.n, holdings: row.held, clearing: balanceOf(systemAccount(id, "clearing")) };
+    return { id, ...PARTICIPANTS[id], accounts: row.n, holdings: row.held, clearing: balanceOf(systemAccount(id, "clearing")), settled: settled[id] };
   });
   const counts = Object.fromEntries(
     (sql(t, "SELECT state, COUNT(*) AS n FROM tpi_txns GROUP BY state").all() as { state: TxnState; n: number }[]).map((r) => [r.state, r.n]),
@@ -65,5 +67,6 @@ export function networkView(t: Tpi, limit = 40): NetworkView {
       createdAt: x.created_at,
       events: events.all(x.txn_id) as { state: TxnState; msg: string; at: number }[],
     })),
+    settlement: settlementView(t),
   };
 }

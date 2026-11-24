@@ -3,7 +3,7 @@
 import type { ParticipantId } from "@/lib/tpi";
 import { atomic, sql, TpiError, type Tpi } from "./db";
 
-export type AccountKind = "wallet" | "mint" | "clearing" | "merchant" | "external";
+export type AccountKind = "wallet" | "mint" | "clearing" | "settlement" | "merchant" | "external";
 
 export interface LedgerAccount {
   id: string;
@@ -20,14 +20,18 @@ export interface LedgerAccount {
   created_at: number;
 }
 
-/** The two system accounts a participant keeps: where money is created, and what it owes the network. */
-export function systemAccount(participant: ParticipantId, kind: "mint" | "clearing"): string {
+/**
+ * A participant's system accounts: where money is created (TacketPay only), what it owes the network
+ * before settlement (clearing), and its settlement account with TPI, which absorbs clearing when a cycle closes.
+ */
+export function systemAccount(participant: ParticipantId, kind: "mint" | "clearing" | "settlement"): string {
   return `${participant}:${kind}`;
 }
 
 export function ensureSystemAccounts(t: Tpi, participant: ParticipantId) {
   const insert = sql(t, "INSERT OR IGNORE INTO ledger_accounts (id, participant, kind, system, created_at) VALUES (?, ?, ?, 1, ?)");
   insert.run(systemAccount(participant, "clearing"), participant, "clearing", t.now());
+  insert.run(systemAccount(participant, "settlement"), participant, "settlement", t.now());
   if (participant === "tpay") insert.run(systemAccount(participant, "mint"), participant, "mint", t.now());
 }
 

@@ -116,6 +116,29 @@ CREATE TABLE IF NOT EXISTS tpi_events (
 );
 CREATE INDEX IF NOT EXISTS tpi_events_txn ON tpi_events(txn_id);
 
+-- Settlement (plan §7): cycles close on demand or on a timer. Each final payment is settled exactly once,
+-- and the participants' net positions in a cycle always sum to zero.
+CREATE TABLE IF NOT EXISTS settlement_cycles (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  opened_at INTEGER NOT NULL,
+  closed_at INTEGER NOT NULL,
+  txn_count INTEGER NOT NULL,
+  gross INTEGER NOT NULL,
+  trigger TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS settlement_positions (
+  cycle_id INTEGER NOT NULL REFERENCES settlement_cycles(id),
+  participant TEXT NOT NULL,
+  net INTEGER NOT NULL,
+  txn_count INTEGER NOT NULL,
+  journal_id TEXT,
+  PRIMARY KEY (cycle_id, participant)
+);
+CREATE TABLE IF NOT EXISTS settlement_items (
+  txn_id TEXT PRIMARY KEY REFERENCES tpi_txns(txn_id),
+  cycle_id INTEGER NOT NULL REFERENCES settlement_cycles(id)
+);
+
 -- TacketPay app data (the "pay-api" side): history rows, chats, requests, rewards, linked bills.
 CREATE TABLE IF NOT EXISTS activity (
   id TEXT PRIMARY KEY,
