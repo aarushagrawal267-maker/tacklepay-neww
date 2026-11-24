@@ -4,7 +4,7 @@ import { STARTING_BALANCE } from "@/lib/seed";
 import { bankHandle } from "@/lib/tpi";
 import { openTpi, sql, TpiError, type Tpi } from "../db";
 import { signUp } from "../identity";
-import { ledgerSum, systemAccount } from "../ledger";
+import { ledgerSum, post, systemAccount } from "../ledger";
 import { bootstrap, networkView } from "../network";
 import { userById, type UserRow } from "../records";
 import { closeCycle, reconcile, settleIfDue, settlementView } from "../settlement";
@@ -81,11 +81,10 @@ describe("settlement cycles", () => {
   it("includes reversed payments with a zero net and ignores failed ones", () => {
     const t = network();
     const { diya, aarush } = people(t);
-    while (wallet.snapshot(t, fresh(t, aarush)).accounts.reduce((s, a) => s + a.balance, 0) + 1_00_000_00 <= MAX_BALANCE_PAISE) {
-      wallet.topUp(t, fresh(t, aarush), { amount: 1_00_000_00, pin: "4321" });
-    }
-    const left = MAX_BALANCE_PAISE - wallet.snapshot(t, fresh(t, aarush)).accounts.reduce((s, a) => s + a.balance, 0);
-    if (left > 0) wallet.topUp(t, fresh(t, aarush), { amount: left, pin: "4321" });
+    // Mint straight into Aarush's wallet up to the ₹10,00,000 cap so the credit is refused.
+    const account = wallet.snapshot(t, fresh(t, aarush)).accounts[0];
+    const left = MAX_BALANCE_PAISE - account.balance;
+    post(t, { participant: "tpay", kind: "topup", lines: [{ account: systemAccount("tpay", "mint"), amount: -left }, { account: account.id, amount: left }] });
     const { txn } = wallet.pay(t, diya, { payeeHandle: aarush.handle, amount: 300_00, method: "contact", pin: "1234" });
     expect(txn.state).toBe("REVERSED");
     expect(code(() => wallet.pay(t, fresh(t, diya), { payeeHandle: "nobody@tpay", amount: 100, method: "contact", pin: "1234" }))).toBe("HANDLE_NOT_FOUND");
@@ -121,5 +120,64 @@ describe("reconciliation", () => {
     sql(t, "UPDATE journals SET txn_id = ? WHERE id = ?").run(txn.txn_id, credit.id);
     expect(reconcile(t)).toEqual([]);
     expect(closeCycle(t).txnCount).toBe(1);
+  });
+});
+
+describe("settlement property (plan §14)", () => {
+  /** Small seeded PRNG so a failing case can be replayed from its seed. */
+  function mulberry32(seed: number) {
+    return () => {
+      seed = (seed + 0x6d2b79f5) | 0;
+      let r = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+      r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r;
+      return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  it.each([1, 2, 3, 4, 5, 6, 7, 8])("for random payment sets (seed %i), every cycle nets to zero and empties clearing", (seed) => {
+    const rand = mulberry32(seed);
+    const t = network();
+    const { diya, aarush } = people(t);
+    const ravi = signUp(t, { name: "Ravi", phone: "99887 76655", pin: "5555" }).user;
+    const payers = [
+      { user: diya, pin: "1234" },
+      { user: aarush, pin: "4321" },
+      { user: ravi, pin: "5555" },
+    ];
+    const payees = [diya.handle, aarush.handle, ravi.handle, "chai.point@tacket", bankHandle("123456789012", "ABCD0123456"), "nobody@tpay"];
+    const pick = <T,>(xs: T[]) => xs[Math.floor(rand() * xs.length)];
+
+    let settledCycles = 0;
+    for (let round = 0; round < 4; round++) {
+      const count = 5 + Math.floor(rand() * 20);
+      for (let i = 0; i < count; i++) {
+        const payer = pick(payers);
+        const payeeHandle = pick(payees);
+        if (payeeHandle === payer.user.handle) continue;
+        // Up to ₹6,000, so some payments run out of balance and fail before any debit.
+        const amount = 1 + Math.floor(rand() * 6_000_00);
+        try {
+          wallet.pay(t, fresh(t, payer.user), { payeeHandle, payeeName: "Ravi", amount, method: "contact", pin: payer.pin });
+        } catch (err) {
+          if (!(err instanceof TpiError)) throw err;
+        }
+      }
+      expect(reconcile(t)).toEqual([]);
+      const out = settleIfDue(t);
+      if (typeof out === "string") {
+        expect(out).toBe("NOTHING_TO_SETTLE");
+      } else {
+        settledCycles++;
+        expect(out.positions.reduce((sum, p) => sum + p.net, 0)).toBe(0);
+      }
+      // After every cycle nothing is left in clearing, no money appeared or vanished, and nothing waits to settle.
+      for (const pid of ["tpay", "tacket", "demobank"] as const) expect(clearing(t, pid)).toBe(0);
+      expect(ledgerSum(t)).toBe(0);
+      expect(settlementView(t).unsettled).toBe(0);
+    }
+    expect(settledCycles).toBeGreaterThan(0);
+    // Each finished payment was settled exactly once.
+    const dupes = sql(t, "SELECT txn_id FROM settlement_items GROUP BY txn_id HAVING COUNT(*) > 1").all();
+    expect(dupes).toEqual([]);
   });
 });

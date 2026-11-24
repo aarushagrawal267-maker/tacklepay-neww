@@ -37,14 +37,14 @@ It works on a laptop and on a phone:
   iPhone 16 Pro Max; never below 16px on iPhone so inputs don't trigger Safari's zoom).
 
 To use the **camera scanner** on a phone, the site must be served over **https** (browsers block cameras on
-plain http, except on `localhost`). A free Vercel deploy, or `npx next dev --experimental-https` on your
-LAN, both work. Without a camera you can still use **Upload from gallery**.
+plain http, except on `localhost`). A host with https (see [Deploying](#deploying)), or
+`npx next dev --experimental-https` on your LAN, both work. Without a camera you can still use **Upload from gallery**.
 
 | Command | What it does |
 | --- | --- |
 | `npm run dev` | Dev server |
 | `npm run build && npm start` | Production build and server |
-| `npm test` | Unit tests (money maths, QR payloads, TPI payments, reversals, crash recovery, settlement, reconciliation) |
+| `npm test` | Unit tests (money maths, QR payloads, TPI payments, reversals, crash recovery, limits, settlement, reconciliation, a randomized settlement property test) |
 | `npm run check` | Typecheck + lint + tests |
 | `npm run smoke` | End-to-end check over HTTP against a running server (see below) |
 | `npm run icons` | Regenerate the Material Symbols subset after adding an icon name |
@@ -141,6 +141,8 @@ Everything from the reference kit, made functional:
     ID, so a retried message never moves money twice.
   - **Ledgers** (`ledger.ts`): double entry in paise. Every journal sums to zero. Wallets can't go negative
     or above ₹10,00,000. Each participant has a clearing account; their positions always net to zero.
+  - **Limits** (plan §11): ₹1,00,000 per payment, ₹10,00,000 per wallet, and Add money capped at ₹2,00,000 per
+    person over any rolling 24 hours. They are enforced on the server by the participant, not just the app.
   - **Accounts** (`identity.ts`): sign up or sign in with a mobile number and a 4-digit demo PIN (scrypt
     hashed; locks for 5 minutes after 5 wrong tries). The session is an httpOnly cookie.
   - **Settlement** (`settlement.ts`): cycles, net positions, the zero-sum rule and reconciliation

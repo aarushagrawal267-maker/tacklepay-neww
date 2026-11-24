@@ -179,7 +179,7 @@ export function AddMoney() {
                 Top up your TacketPay balance from {account ? `${account.bank} ${account.last4}` : "your demo bank"}.
               </p>
               <ol className="mt-6 divide-y divide-line rounded-2xl bg-surface-2">
-                <StepRow n={1} title="Pick an amount" body="Up to ₹1,00,000 at a time, straight into your balance." />
+                <StepRow n={1} title="Pick an amount" body="Up to ₹1,00,000 at a time and ₹2,00,000 a day, straight into your balance." />
                 <StepRow n={2} title="Confirm with your demo PIN" body="The PIN you chose when you joined. It's a demo bank, so nothing real is charged." />
               </ol>
               <p className="mt-auto pt-6 text-center text-[0.8125rem] text-text-2">Demo money arrives instantly</p>

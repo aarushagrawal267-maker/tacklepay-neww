@@ -4,7 +4,8 @@
 > reversal, resume after restart), three participants with double-entry ledgers and clearing accounts
 > (TacketPay `@tpay`, Tacket `@tacket` shops, and a Demo Bank Network for bank transfers), idempotent
 > handlers, demo-PIN accounts, collect requests, an operator view at `/tpi`, and settlement cycles with
-> reconciliation (§7: on demand or hourly, zero-sum rule, recon exceptions; `src/server/tpi/settlement.ts`).
+> reconciliation (§7: on demand or hourly, zero-sum rule, recon exceptions; `src/server/tpi/settlement.ts`),
+> the §11 limits (per payment, per wallet and a daily top-up cap) and `/api/healthz`.
 > It uses one SQLite file. **Not built yet:** separate services and databases (§8), signed messages (§4, §11),
 > DEEMED/ChkTxn timeouts, signed settlement reports, and the Tacket repo's participant.
 > TPI is a UPI-style payment network for **demo money**. It moves money between independent systems that

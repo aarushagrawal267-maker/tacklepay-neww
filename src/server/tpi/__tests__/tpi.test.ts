@@ -7,7 +7,7 @@ import { STARTING_BALANCE } from "@/lib/seed";
 import { bankHandle } from "@/lib/tpi";
 import { openTpi, sql, TpiError, type Tpi } from "../db";
 import { signIn, signUp, userForSession, verifyPin } from "../identity";
-import { ledgerSum, systemAccount } from "../ledger";
+import { ledgerSum, post, systemAccount } from "../ledger";
 import { bootstrap, networkView } from "../network";
 import { PARTICIPANT_IMPL } from "../participants";
 import { userById, type UserRow } from "../records";
@@ -29,6 +29,13 @@ function network(file = ":memory:"): Tpi {
 
 const balance = (t: Tpi, user: UserRow) => wallet.snapshot(t, userById(t, user.id)!).accounts.reduce((s, a) => s + a.balance, 0);
 const fresh = (t: Tpi, user: UserRow) => userById(t, user.id)!;
+
+/** Mints straight into a wallet up to the ₹10,00,000 cap (bypassing the daily Add money cap) to set up a refused credit. */
+function fillWallet(t: Tpi, user: UserRow) {
+  const account = wallet.snapshot(t, fresh(t, user)).accounts[0];
+  const amount = MAX_BALANCE_PAISE - balance(t, user);
+  post(t, { participant: "tpay", kind: "topup", lines: [{ account: systemAccount("tpay", "mint"), amount: -amount }, { account: account.id, amount }] });
+}
 
 function code(fn: () => unknown): string | undefined {
   try {
@@ -142,14 +149,37 @@ describe("payments over TPI", () => {
     const t = network();
     const { diya, aarush } = people(t);
     // Fill Aarush's wallet to the ₹10,00,000 cap so the credit is refused.
-    while (balance(t, aarush) + 1_00_000_00 <= MAX_BALANCE_PAISE) wallet.topUp(t, fresh(t, aarush), { amount: 1_00_000_00, pin: "4321" });
-    wallet.topUp(t, fresh(t, aarush), { amount: MAX_BALANCE_PAISE - balance(t, aarush), pin: "4321" });
+    fillWallet(t, aarush);
 
     const { txn } = wallet.pay(t, diya, { payeeHandle: aarush.handle, amount: 300_00, method: "contact", pin: "1234" });
     expect(txn).toMatchObject({ state: "REVERSED", failure_code: "LIMIT_EXCEEDED" });
     expect(balance(t, diya)).toBe(STARTING_BALANCE);
     expect(balance(t, aarush)).toBe(MAX_BALANCE_PAISE);
     expect(wallet.snapshot(t, fresh(t, diya)).transactions[0]).toMatchObject({ status: "reversed", amount: 300_00 });
+    expect(ledgerSum(t)).toBe(0);
+  });
+
+  it("caps Add money at ₹2,00,000 per rolling 24 hours", () => {
+    let clock = 1_800_000_000_000;
+    let n = 0;
+    const t = openTpi(":memory:", {
+      now: () => clock,
+      id: () => `id${String(++n).padStart(6, "0")}`,
+      rrn: () => String(600000000000 + ++n),
+      random: () => 0.9,
+    });
+    bootstrap(t);
+    const { diya } = people(t);
+    wallet.topUp(t, fresh(t, diya), { amount: 1_00_000_00, pin: "1234" });
+    clock += 60 * 60 * 1000;
+    wallet.topUp(t, fresh(t, diya), { amount: 99_999_00, pin: "1234" });
+    expect(code(() => wallet.topUp(t, fresh(t, diya), { amount: 1_01, pin: "1234" }))).toBe("TOPUP_LIMIT");
+    expect(balance(t, diya)).toBe(STARTING_BALANCE + 1_99_999_00);
+    wallet.topUp(t, fresh(t, diya), { amount: 1_00, pin: "1234" });
+    // A day after the first top-up, that ₹1,00,000 no longer counts.
+    clock += 23 * 60 * 60 * 1000 + 1;
+    wallet.topUp(t, fresh(t, diya), { amount: 1_00_000_00, pin: "1234" });
+    expect(code(() => wallet.topUp(t, fresh(t, diya), { amount: 1_00, pin: "1234" }))).toBe("TOPUP_LIMIT");
     expect(ledgerSum(t)).toBe(0);
   });
 

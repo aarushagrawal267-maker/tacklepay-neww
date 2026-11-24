@@ -1,7 +1,7 @@
 // The TacketPay app's backend: what each screen asks for, on top of the TacketPay participant
 // and the TPI switch. Every function takes the signed-in user; nothing here trusts the phone's numbers.
 import type { IconName } from "@/components/ui/icon-paths";
-import { MAX_BALANCE_PAISE, MAX_PAYMENT_PAISE } from "@/lib/money";
+import { MAX_BALANCE_PAISE, MAX_DAILY_TOPUP_PAISE, MAX_PAYMENT_PAISE } from "@/lib/money";
 import { BILL_CATEGORIES, DEMO_BANK } from "@/lib/seed";
 import { BANK_HANDLE_RE, externalContactId, participantOf, type Snapshot } from "@/lib/tpi";
 import type { Contact, Message, Transaction, TxMethod, TxStatus } from "@/lib/types";
@@ -98,12 +98,22 @@ export function pay(
   return { txn, activityId: row?.id ?? null };
 }
 
+const DAY_MS = 24 * 60 * 60 * 1000;
+
 /** "Add money" from the user's demo bank: the only place, besides sign-up and rewards, where the mint creates money. */
 export function topUp(t: Tpi, user: UserRow, input: { amount: number; accountId?: string; pin: string }): string {
   verifyPin(t, user, input.pin);
   const amount = amountOrThrow(input.amount);
   const wallet = ownWallet(t, user, input.accountId);
   return atomic(t, () => {
+    // Daily top-up cap over a rolling 24 hours, enforced by the participant that owns the wallet (plan §11).
+    const since = t.now() - DAY_MS;
+    const added = (
+      sql(t, "SELECT COALESCE(SUM(amount), 0) AS s FROM activity WHERE user_id = ? AND method = 'topup' AND status = 'success' AND at > ?").get(user.id, since) as {
+        s: number;
+      }
+    ).s;
+    if (added + amount > MAX_DAILY_TOPUP_PAISE) throw new TpiError("TOPUP_LIMIT");
     post(t, {
       participant: "tpay",
       kind: "topup",

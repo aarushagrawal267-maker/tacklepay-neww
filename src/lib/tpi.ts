@@ -72,6 +72,7 @@ export type TpiErrorCode =
   | "AMOUNT_TOO_LARGE"
   | "INSUFFICIENT_FUNDS"
   | "LIMIT_EXCEEDED"
+  | "TOPUP_LIMIT"
   | "UNKNOWN_ACCOUNT"
   | "HANDLE_NOT_FOUND"
   | "HANDLE_BLOCKED"
@@ -100,6 +101,7 @@ export const TPI_ERROR_COPY: Record<TpiErrorCode, string> = {
   AMOUNT_TOO_LARGE: "Demo payments are limited to ₹1,00,000",
   INSUFFICIENT_FUNDS: "Not enough demo money in this account",
   LIMIT_EXCEEDED: "Demo balances top out at ₹10,00,000",
+  TOPUP_LIMIT: "You can add up to ₹2,00,000 of demo money in 24 hours. Try a smaller amount or come back tomorrow",
   UNKNOWN_ACCOUNT: "Choose one of your demo accounts",
   HANDLE_NOT_FOUND: "No one on TPI has that ID",
   HANDLE_BLOCKED: "That ID isn't accepting payments right now",

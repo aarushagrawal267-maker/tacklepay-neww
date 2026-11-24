@@ -5,6 +5,8 @@ export const CURRENCY_SYMBOL = "₹";
 export const MAX_PAYMENT_PAISE = 1_00_000_00; // ₹1,00,000 per payment, like real UPI limits
 /** Demo balances are capped so a stuck finger on "Add money" can't create absurd numbers. */
 export const MAX_BALANCE_PAISE = 10_00_000_00;
+/** "Add money" is capped per person over any rolling 24 hours (plan §11: a daily top-up cap). */
+export const MAX_DAILY_TOPUP_PAISE = 2_00_000_00;
 
 const grouping = new Intl.NumberFormat("en-IN", { maximumFractionDigits: 2, minimumFractionDigits: 0 });
 const groupingFixed = new Intl.NumberFormat("en-IN", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
