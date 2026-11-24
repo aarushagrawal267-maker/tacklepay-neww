@@ -1,0 +1,413 @@
+@import "tailwindcss";
+
+/* Theme is driven by data-theme on <html>, set before paint from the saved preference.
+   "system" follows prefers-color-scheme. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* Tacket design language: quiet neutral surfaces, hairline borders, tinted status pills,
+   monospace money. Dark mode is true black, not a tinted navy. */
+:root {
+  --page: #f3f4f6;
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #f6f7f9;
+  --surface-3: #eef0f3;
+  --line: #e6e8eb;
+  --line-strong: #d4d8de;
+  --text: #0b0d10;
+  --text-2: #5f6670;
+  --text-3: #8b929b;
+  --primary: #1f6ff2;
+  --primary-hi: #3b82ff;
+  --primary-fg: #1764e8;
+  --primary-ink: #ffffff;
+  --primary-soft: #eaf2ff;
+  --primary-deep: #0f4fc2;
+  --profile-bg: #f6f7f9;
+  --success: #15803d;
+  --success-soft: #e7f6ec;
+  --danger: #d92d20;
+  --danger-soft: #fdeceb;
+  --warn: #b45309;
+  --warn-soft: #fdf2e2;
+  --due: #c2570c;
+  --demo-bg: #fdf2e2;
+  --demo-ink: #92400e;
+  --demo-line: #f6dcb4;
+  --button: #ffffff;
+  --button-line: #e3e6ea;
+  --pin-bg: #ffffff;
+  --pin-ink: #0b0d10;
+  --scrim: rgb(15 18 22 / 0.4);
+  --shadow-1: 0 1px 2px rgb(16 24 40 / 0.06);
+  --shadow-2: 0 8px 24px rgb(16 24 40 / 0.12), 0 1px 2px rgb(16 24 40 / 0.06);
+  --header-filter: none;
+
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emph: cubic-bezier(0.3, 0, 0, 1);
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --page: #000000;
+  --bg: #000000;
+  --surface: #000000;
+  --surface-2: #0f0f0f;
+  --surface-3: #1a1a1a;
+  --line: #1f1f1f;
+  --line-strong: #333333;
+  --text: #f5f5f5;
+  --text-2: #a3a3a3;
+  --text-3: #737373;
+  --primary: #1f6ff2;
+  --primary-hi: #3b82ff;
+  --primary-fg: #5b9bff;
+  --primary-ink: #ffffff;
+  --primary-soft: #0c1a33;
+  --primary-deep: #0f4fc2;
+  --profile-bg: #0f0f0f;
+  --success: #4ade80;
+  --success-soft: #0d2015;
+  --danger: #f08a8a;
+  --danger-soft: #2a1111;
+  --warn: #f59e0b;
+  --warn-soft: #261a06;
+  --due: #f0a06a;
+  --demo-bg: #261a06;
+  --demo-ink: #fbbf5a;
+  --demo-line: #3d2b0c;
+  --button: #161616;
+  --button-line: #161616;
+  --pin-bg: #000000;
+  --pin-ink: #f5f5f5;
+  --scrim: rgb(0 0 0 / 0.7);
+  --shadow-1: none;
+  --shadow-2: 0 0 0 1px #262626, 0 12px 32px rgb(0 0 0 / 0.8);
+  --header-filter: brightness(0.75);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-page: var(--page);
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-text: var(--text);
+  --color-text-2: var(--text-2);
+  --color-text-3: var(--text-3);
+  --color-primary: var(--primary);
+  --color-primary-fg: var(--primary-fg);
+  --color-primary-ink: var(--primary-ink);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-deep: var(--primary-deep);
+  --color-profile: var(--profile-bg);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-due: var(--due);
+  --color-demo: var(--demo-bg);
+  --color-demo-ink: var(--demo-ink);
+  --color-demo-line: var(--demo-line);
+  --color-button: var(--button);
+  --color-button-line: var(--button-line);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SFMono-Regular", monospace;
+  --shadow-e1: var(--shadow-1);
+  --shadow-e2: var(--shadow-2);
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+/* Fluid sizing. Every size in the UI is in rem, designed against a 390px-wide phone at 16px.
+   On phones the root size follows the screen width, so a 360px Android gets ~0.92×, an
+   iPhone 16 Pro Max ~1.12×, and the layout keeps the same proportions instead of looking
+   cramped on one and tiny on the other. Desktop keeps 16px inside its phone-sized frame. */
+html {
+  font-size: 16px;
+}
+@media (max-width: 639px) {
+  html {
+    font-size: clamp(14.5px, 4.1026vw, 18px);
+  }
+  /* iOS Safari zooms into inputs under 16px; never scale below that on iPhone. */
+  @supports (-webkit-touch-callout: none) {
+    html {
+      font-size: clamp(16px, 4.1026vw, 18px);
+    }
+  }
+}
+
+body {
+  background: var(--page);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-feature-settings: "cv11", "ss01";
+  overscroll-behavior: none;
+}
+
+/* ---------- Stage ----------
+   Phone: the app (the "device") fills the screen.
+   Laptop (640px+): a sidebar on the left, the app as a full-height content column in the
+   middle, and from 1280px a wallet panel on the right. The transform makes the device the
+   containing block for position:fixed sheets, PIN screens and FABs, so they stay in the
+   content column; container queries (@xl:, @3xl:) let screens widen their grids. */
+.stage {
+  min-height: 100dvh;
+}
+
+.device {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  overflow: hidden;
+  transform: translateZ(0);
+  container-type: inline-size;
+}
+
+.side-nav,
+.wallet-panel {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .stage {
+    display: flex;
+    justify-content: center;
+    height: 100dvh;
+    background: var(--bg);
+  }
+  .device {
+    position: relative;
+    inset: auto;
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 48rem;
+    height: 100dvh;
+    border-inline: 1px solid var(--line);
+  }
+  .side-nav {
+    display: flex;
+  }
+}
+
+@media (min-width: 1280px) {
+  .wallet-panel {
+    display: flex;
+  }
+}
+
+/* ---------- Motion ---------- */
+@keyframes screen-in {
+  from {
+    opacity: 0;
+    transform: translateX(28px);
+  }
+}
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+}
+@keyframes sheet-in {
+  from {
+    transform: translateY(100%);
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+}
+@keyframes check-draw {
+  from {
+    stroke-dashoffset: 48;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes ring-burst {
+  0% {
+    transform: scale(0.4);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+@keyframes scan-line {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(14.5rem);
+  }
+}
+@keyframes shake {
+  10%,
+  90% {
+    transform: translateX(-2px);
+  }
+  20%,
+  80% {
+    transform: translateX(4px);
+  }
+  30%,
+  50%,
+  70% {
+    transform: translateX(-8px);
+  }
+  40%,
+  60% {
+    transform: translateX(8px);
+  }
+}
+@keyframes coin-spin {
+  from {
+    transform: rotateY(0deg);
+  }
+  to {
+    transform: rotateY(-360deg);
+  }
+}
+@keyframes coin-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-3deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(3deg);
+  }
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@layer components {
+.animate-screen {
+  animation: screen-in 240ms var(--ease-emph) both;
+}
+.animate-rise {
+  animation: rise-in 280ms var(--ease-emph) both;
+}
+.animate-sheet {
+  animation: sheet-in 260ms var(--ease-emph) both;
+}
+.animate-fade {
+  animation: fade-in 200ms var(--ease-out) both;
+}
+.animate-pop {
+  animation: pop-in 200ms var(--ease-emph) both;
+}
+.animate-shake {
+  animation: shake 400ms ease both;
+}
+.animate-spin-slow {
+  animation: spin 900ms linear infinite;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-3) 25%, var(--surface-2) 50%, var(--surface-3) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@layer components {
+/* ---------- Utilities ---------- */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Dashed separator, matching the reference MySeparator (2px dashes, 2px gaps). */
+.dashed {
+  height: 1px;
+  background-image: linear-gradient(to right, var(--line-strong) 50%, transparent 0);
+  background-size: 4px 1px;
+}
+
+/* Material-ish state layer for pressable surfaces. */
+.press {
+  position: relative;
+  isolation: isolate;
+}
+.press::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: currentColor;
+  opacity: 0;
+  transition: opacity 150ms var(--ease-out);
+  pointer-events: none;
+  z-index: -1;
+}
+@media (hover: hover) {
+  .press:hover::after {
+    opacity: 0.06;
+  }
+}
+.press:active::after {
+  opacity: 0.12;
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary-fg);
+  outline-offset: 2px;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Every amount is set in mono, like the reference ledger. */
+.money {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+}
