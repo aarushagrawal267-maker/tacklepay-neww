@@ -1,9 +1,10 @@
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import type { SQLInputValue } from "node:sqlite";
 import { afterEach, describe, expect, it } from "vitest";
 import { MAX_BALANCE_PAISE } from "@/lib/money";
-import { STARTING_BALANCE } from "@/lib/seed";
+import { billerHandle, STARTING_BALANCE } from "@/lib/seed";
 import { bankHandle } from "@/lib/tpi";
 import { openTpi, sql, TpiError, type Tpi } from "../db";
 import { signIn, signUp, userForSession, verifyPin } from "../identity";
@@ -78,6 +79,17 @@ describe("accounts", () => {
     for (let i = 0; i < 4; i++) expect(code(() => verifyPin(t, fresh(t, diya), "0000"))).toBe("PIN_INVALID");
     expect(code(() => verifyPin(t, fresh(t, diya), "0000"))).toBe("PIN_LOCKED");
     expect(code(() => verifyPin(t, fresh(t, diya), "1234"))).toBe("PIN_LOCKED");
+  });
+
+  it("counts wrong PINs from the database, not from a user row read before the request", () => {
+    const t = network();
+    const { diya } = people(t);
+    // Parallel requests each read the user row (pin_fails = 0) before any PIN is checked.
+    const stale = fresh(t, diya);
+    for (let i = 0; i < 4; i++) expect(code(() => verifyPin(t, stale, "0000"))).toBe("PIN_INVALID");
+    expect(code(() => verifyPin(t, stale, "0000"))).toBe("PIN_LOCKED");
+    expect(code(() => wallet.pay(t, stale, { payeeHandle: "chai.point@tacket", amount: 100, method: "qr", pin: "1234" }))).toBe("PIN_LOCKED");
+    expect(balance(t, diya)).toBe(STARTING_BALANCE);
   });
 });
 
@@ -194,6 +206,41 @@ describe("payments over TPI", () => {
     expect(balance(t, aarush)).toBe(STARTING_BALANCE + 75_00);
   });
 
+  it("refuses to reuse a payment's key for a different payment", () => {
+    const t = network();
+    const { diya, aarush } = people(t);
+    const input = { payeeHandle: aarush.handle, amount: 75_00, method: "contact" as const, pin: "1234", idemKey: "tap-1" };
+    wallet.pay(t, diya, input);
+    expect(code(() => wallet.pay(t, fresh(t, diya), { ...input, amount: 80_00 }))).toBe("IDEMPOTENCY_MISMATCH");
+    expect(code(() => wallet.pay(t, fresh(t, diya), { ...input, payeeHandle: "chai.point@tacket" }))).toBe("IDEMPOTENCY_MISMATCH");
+    // Keys are per person: Aarush's "tap-1" is a different payment.
+    expect(wallet.pay(t, aarush, { ...input, payeeHandle: diya.handle, pin: "4321" }).txn.state).toBe("SUCCESS");
+    expect(balance(t, diya)).toBe(STARTING_BALANCE - 75_00 + 75_00);
+    expect(networkView(t).counts.success).toBe(2);
+  });
+
+  it("returns the first result when a paid request or bill is retried with the same key", () => {
+    const t = network();
+    const { diya, aarush } = people(t);
+    const id = wallet.requestMoney(t, aarush, { fromHandle: diya.handle, amount: 150_00 });
+    const input = { payeeHandle: aarush.handle, amount: 150_00, method: "contact" as const, pin: "1234", requestId: id, idemKey: "tap-req" };
+    const a = wallet.pay(t, diya, input);
+    // The response was lost; the phone sends the same attempt again. It must not look like a failure.
+    const b = wallet.pay(t, fresh(t, diya), input);
+    expect(b.txn.txn_id).toBe(a.txn.txn_id);
+    expect(b.activityId).toBe(a.activityId);
+    // A new attempt for the already-paid request is still refused.
+    expect(code(() => wallet.pay(t, fresh(t, diya), { ...input, idemKey: "tap-req-2" }))).toBe("REQUEST_NOT_PAYABLE");
+
+    const billId = wallet.linkBill(t, fresh(t, diya), { categoryId: "electricity", providerId: "metro-power", accountNumber: "EL123456" });
+    const due = wallet.snapshot(t, fresh(t, diya)).linkedBills.find((x) => x.id === billId)!.dueAmount;
+    const billInput = { payeeHandle: billerHandle("metro-power"), amount: due, method: "bill" as const, pin: "1234", billId, idemKey: "tap-bill" };
+    const c = wallet.pay(t, fresh(t, diya), billInput);
+    expect(wallet.pay(t, fresh(t, diya), billInput).txn.txn_id).toBe(c.txn.txn_id);
+    expect(balance(t, diya)).toBe(STARTING_BALANCE - 150_00 - due);
+    expect(ledgerSum(t)).toBe(0);
+  });
+
   it("finishes a payment that a crash interrupted after the debit", () => {
     const t = network();
     const { diya, aarush } = people(t);
@@ -247,6 +294,19 @@ describe("requests, chat and rewards", () => {
     wallet.scratchReward(t, fresh(t, diya), card.id);
     expect(balance(t, diya)).toBe(STARTING_BALANCE + card.amount!);
     expect(ledgerSum(t)).toBe(0);
+  });
+
+  it("does not mint a reward twice when another process scratched it first", () => {
+    const t = network();
+    const { diya } = people(t);
+    const card = wallet.snapshot(t, diya).rewards.find((r) => r.amount)!;
+    wallet.scratchReward(t, diya, card.id);
+    // Simulate the race: the row read before the write still says "not scratched".
+    const read = sql(t, "SELECT * FROM rewards WHERE id = ? AND user_id = ?");
+    const original = read.get.bind(read) as (...args: SQLInputValue[]) => object;
+    read.get = ((...args: SQLInputValue[]) => ({ ...original(...args), scratched: 0 })) as unknown as typeof read.get;
+    wallet.scratchReward(t, fresh(t, diya), card.id);
+    expect(balance(t, diya)).toBe(STARTING_BALANCE + card.amount!);
   });
 });
 

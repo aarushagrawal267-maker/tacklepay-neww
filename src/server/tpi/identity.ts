@@ -108,14 +108,20 @@ export function signUp(t: Tpi, input: { name: string; phone: string; pin: string
 
 /** Throws PIN_LOCKED or PIN_INVALID; five wrong PINs in a row lock the account for five minutes. */
 export function verifyPin(t: Tpi, user: UserRow, pin: string) {
-  if (user.pin_locked_until > t.now()) throw new TpiError("PIN_LOCKED", 423);
-  const expected = Buffer.from(user.pin_hash, "hex");
-  const given = Buffer.from(hashPin(PIN_RE.test(pin) ? pin : "", user.pin_salt), "hex");
+  // Re-read the PIN state: `user` was loaded before the request body was awaited, so parallel requests
+  // would all see the same old count and never reach the lockout. From here on this runs without yielding.
+  const row = sql(t, "SELECT pin_hash, pin_salt, pin_fails, pin_locked_until FROM users WHERE id = ?").get(user.id) as
+    | Pick<UserRow, "pin_hash" | "pin_salt" | "pin_fails" | "pin_locked_until">
+    | undefined;
+  if (!row) throw new TpiError("UNAUTHORIZED", 401);
+  if (row.pin_locked_until > t.now()) throw new TpiError("PIN_LOCKED", 423);
+  const expected = Buffer.from(row.pin_hash, "hex");
+  const given = Buffer.from(hashPin(PIN_RE.test(pin) ? pin : "", row.pin_salt), "hex");
   if (PIN_RE.test(pin) && timingSafeEqual(expected, given)) {
-    if (user.pin_fails) sql(t, "UPDATE users SET pin_fails = 0 WHERE id = ?").run(user.id);
+    if (row.pin_fails) sql(t, "UPDATE users SET pin_fails = 0 WHERE id = ?").run(user.id);
     return;
   }
-  const fails = user.pin_fails + 1;
+  const fails = row.pin_fails + 1;
   const locked = fails >= MAX_PIN_FAILS;
   sql(t, "UPDATE users SET pin_fails = ?, pin_locked_until = ? WHERE id = ?").run(locked ? 0 : fails, locked ? t.now() + LOCK_MS : 0, user.id);
   throw new TpiError(locked ? "PIN_LOCKED" : "PIN_INVALID", locked ? 423 : 400);

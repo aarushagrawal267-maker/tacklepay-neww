@@ -55,6 +55,8 @@ export function PayFlow({ mode }: { mode: "pay" | "request" }) {
   const [pinError, setPinError] = useState<string>();
   const [accountId, setAccountId] = useState<string>();
   const [attempt, setAttempt] = useState("");
+  // Set when the last try ended without a clear answer (offline or a server error): it may have paid.
+  const [unsureOf, setUnsureOf] = useState<string>();
   const chosenAccount = accountId ?? (accounts.find((a) => a.primary) ?? accounts[0])?.id;
 
   // Routes stay mounted (hidden) after you leave, so leave them clean for the next visit.
@@ -65,6 +67,7 @@ export function PayFlow({ mode }: { mode: "pay" | "request" }) {
     setError(undefined);
     setPinError(undefined);
     setAccountId(undefined);
+    setUnsureOf(undefined);
   }, [initialPaise, params, locked]);
   const exit = useCallback(() => {
     reset();
@@ -72,6 +75,8 @@ export function PayFlow({ mode }: { mode: "pay" | "request" }) {
   }, [reset, back]);
 
   const amount = parseAmount(text) ?? 0;
+  /** What the idempotency key stands for: retrying the same payment may reuse it, a different one may not. */
+  const payment = [contact?.handle, amount, chosenAccount, requestId ?? "", billId ?? ""].join("|");
 
   const next = useCallback(async () => {
     setError(undefined);
@@ -101,8 +106,11 @@ export function PayFlow({ mode }: { mode: "pay" | "request" }) {
     if (account.balance < amount) return setError(ERROR_COPY.INSUFFICIENT_FUNDS);
     setError(undefined);
     setPinError(undefined);
-    // One key per tap on Pay: if the request is retried, TPI pays at most once.
-    setAttempt(idempotencyKey());
+    // One key per payment attempt: if the request is retried, TPI pays at most once. After an unclear
+    // failure the same payment keeps its key, so if the first try did go through, TPI returns it
+    // instead of paying again.
+    if (!(attempt && unsureOf === payment)) setAttempt(idempotencyKey());
+    setUnsureOf(undefined);
     setPhase("pin");
   };
 
@@ -135,6 +143,7 @@ export function PayFlow({ mode }: { mode: "pay" | "request" }) {
       } catch (err) {
         await wait(MIN_PROCESSING_MS / 2 - (Date.now() - started));
         const code = err instanceof ApiError ? err.code : "INTERNAL";
+        setUnsureOf(code === "OFFLINE" || code === "INTERNAL" ? payment : undefined);
         if (code === "PIN_INVALID") {
           setPinError(errorText(err));
           setPhase("pin");
@@ -144,7 +153,7 @@ export function PayFlow({ mode }: { mode: "pay" | "request" }) {
         setPhase(locked || code === "PIN_LOCKED" ? "confirm" : "amount");
       }
     },
-    [contact, amount, note, method, chosenAccount, requestId, billId, attempt, locked, router, reset],
+    [contact, amount, note, method, chosenAccount, requestId, billId, attempt, payment, locked, router, reset],
   );
 
   if (!hydrated || (!contact && !synced)) return <ScreenSkeleton />;

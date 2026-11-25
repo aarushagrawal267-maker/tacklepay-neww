@@ -43,8 +43,19 @@ function move(t: Tpi, txn: TxnRow, to: TxnState, msg: string, patch: { payee_nam
 /** ReqPay: the payer's participant asks the switch to move money. Returns the transaction in a final state. */
 export function reqPay(t: Tpi, req: ReqPay): TxnRow {
   if (req.idemKey) {
-    const seen = sql(t, "SELECT txn_id FROM tpi_txns WHERE idem_key = ?").get(req.idemKey) as { txn_id: string } | undefined;
-    if (seen) return resume(t, seen.txn_id);
+    const seen = sql(t, "SELECT * FROM tpi_txns WHERE idem_key = ?").get(req.idemKey) as TxnRow | undefined;
+    if (seen) {
+      // Same key, different payment: refuse rather than report the first payment as this one.
+      const same =
+        seen.payer_handle === req.payerHandle &&
+        seen.payer_account === req.payerAccount &&
+        seen.payee_handle === req.payeeHandle &&
+        seen.amount === req.amount &&
+        seen.ref_type === (req.ref?.type ?? null) &&
+        seen.ref_id === (req.ref?.id ?? null);
+      if (!same) throw new TpiError("IDEMPOTENCY_MISMATCH", 409);
+      return resume(t, seen.txn_id);
+    }
   }
   if (!Number.isSafeInteger(req.amount) || req.amount <= 0) throw new TpiError("INVALID_AMOUNT");
   if (req.amount > MAX_PAYMENT_PAISE) throw new TpiError("AMOUNT_TOO_LARGE");

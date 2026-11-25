@@ -80,6 +80,7 @@ export type TpiErrorCode =
   | "NOT_SUPPORTED"
   | "REQUEST_NOT_PAYABLE"
   | "AMOUNT_MISMATCH"
+  | "IDEMPOTENCY_MISMATCH"
   | "RECON_MISMATCH"
   | "NOTHING_TO_SETTLE";
 
@@ -109,6 +110,7 @@ export const TPI_ERROR_COPY: Record<TpiErrorCode, string> = {
   NOT_SUPPORTED: "That isn't supported on TPI yet",
   REQUEST_NOT_PAYABLE: "This request was already paid, declined or cancelled",
   AMOUNT_MISMATCH: "The amount doesn't match the request",
+  IDEMPOTENCY_MISMATCH: "This payment attempt was already used for different details. Start the payment again",
   RECON_MISMATCH: "Settlement refused: a participant's books don't match the switch. See the reconciliation exceptions",
   NOTHING_TO_SETTLE: "Every finished payment is already settled",
 };

@@ -60,8 +60,17 @@ export function pay(
   const wallet = ownWallet(t, user, input.accountId);
   const method = PAY_METHODS.includes(input.method) ? input.method : "contact";
 
+  const idemKey = input.idemKey ? `${user.id}:${input.idemKey.slice(0, 64)}` : undefined;
+  // A retry of an attempt TPI already has skips the request/bill checks below: that request is now "paid"
+  // (or that bill is now 0), and the retry must get the first result back, not REQUEST_NOT_PAYABLE.
+  // The switch still checks the retry describes the same payment.
+  const retry = idemKey !== undefined && sql(t, "SELECT 1 FROM tpi_txns WHERE idem_key = ?").get(idemKey) !== undefined;
+
   let ref: { type: "request" | "bill"; id: string } | undefined;
-  if (input.requestId) {
+  if (retry) {
+    if (input.requestId) ref = { type: "request", id: input.requestId };
+    else if (input.billId) ref = { type: "bill", id: input.billId };
+  } else if (input.requestId) {
     const req = sql(t, "SELECT * FROM messages WHERE id = ? AND kind = 'request'").get(input.requestId) as
       | { to_handle: string; from_handle: string; amount: number; status: string }
       | undefined;
@@ -89,7 +98,7 @@ export function pay(
     note: clean(input.note, 60),
     method,
     ref,
-    idemKey: input.idemKey ? `${user.id}:${input.idemKey.slice(0, 64)}` : undefined,
+    idemKey,
   });
   if (txn.state === "FAILED") throw new TpiError(txn.failure_code ?? "INTERNAL");
   const row = sql(t, "SELECT id FROM activity WHERE txn_id = ? AND user_id = ? AND direction = 'debit'").get(txn.txn_id, user.id) as
@@ -237,7 +246,9 @@ export function scratchReward(t: Tpi, user: UserRow, rewardId: string) {
   if (!reward) throw new TpiError("NOT_FOUND", 404);
   if (reward.scratched) return;
   atomic(t, () => {
-    sql(t, "UPDATE rewards SET scratched = 1 WHERE id = ?").run(rewardId);
+    // Claim the card inside the write transaction: only the call that flips it from 0 to 1 credits it,
+    // even if another process scratched it after the read above.
+    if (sql(t, "UPDATE rewards SET scratched = 1 WHERE id = ? AND scratched = 0").run(rewardId).changes !== 1) return;
     if (reward.amount) {
       const wallet = primaryWallet(t, user.id);
       post(t, {
