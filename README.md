@@ -144,7 +144,10 @@ Everything from the reference kit, made functional:
   - **Limits** (plan §11): ₹1,00,000 per payment, ₹10,00,000 per wallet, and Add money capped at ₹2,00,000 per
     person over any rolling 24 hours. They are enforced on the server by the participant, not just the app.
   - **Accounts** (`identity.ts`): sign up or sign in with a mobile number and a 4-digit demo PIN (scrypt
-    hashed; locks for 5 minutes after 5 wrong tries). The session is an httpOnly cookie.
+    hashed; locks after 5 wrong tries in a row, for 5 minutes, then twice as long each time up to 24 hours).
+    The session is an httpOnly, SameSite=Lax cookie, and every POST must be `application/json`, which
+    another site can't send without a CORS preflight the server never grants (CSRF). Every response
+    carries security headers (`next.config.ts`): no framing, `nosniff`, and camera only for this site.
   - **Settlement** (`settlement.ts`): cycles, net positions, the zero-sum rule and reconciliation
     exceptions (plan §7). Settlement is bookkeeping only: no bank is involved.
   - **Storage**: Node's built-in SQLite in `data/tpi.db` (set `TPI_DB_PATH` to move it). Hosting needs a

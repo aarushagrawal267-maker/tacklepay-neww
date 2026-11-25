@@ -7,7 +7,7 @@ import { MAX_BALANCE_PAISE } from "@/lib/money";
 import { billerHandle, STARTING_BALANCE } from "@/lib/seed";
 import { bankHandle } from "@/lib/tpi";
 import { openTpi, sql, TpiError, type Tpi } from "../db";
-import { signIn, signUp, userForSession, verifyPin } from "../identity";
+import { pinLockMs, signIn, signUp, userForSession, verifyPin } from "../identity";
 import { ledgerSum, post, systemAccount } from "../ledger";
 import { bootstrap, networkView } from "../network";
 import { PARTICIPANT_IMPL } from "../participants";
@@ -79,6 +79,34 @@ describe("accounts", () => {
     for (let i = 0; i < 4; i++) expect(code(() => verifyPin(t, fresh(t, diya), "0000"))).toBe("PIN_INVALID");
     expect(code(() => verifyPin(t, fresh(t, diya), "0000"))).toBe("PIN_LOCKED");
     expect(code(() => verifyPin(t, fresh(t, diya), "1234"))).toBe("PIN_LOCKED");
+  });
+
+  it("makes each new PIN lock twice as long, up to a day, and a correct PIN clears the count", () => {
+    let clock = 1_800_000_000_000;
+    let n = 0;
+    const t = openTpi(":memory:", { now: () => clock, id: () => `id${String(++n).padStart(6, "0")}`, rrn: () => String(600000000000 + ++n), random: () => 0.9 });
+    bootstrap(t);
+    const { diya } = people(t);
+    const wrongFive = () => {
+      for (let i = 0; i < 4; i++) expect(code(() => signIn(t, { phone: "9876543210", pin: "0000" }))).toBe("PIN_INVALID");
+      expect(code(() => signIn(t, { phone: "9876543210", pin: "0000" }))).toBe("PIN_LOCKED");
+    };
+    const minutes = [5, 10, 20, 40, 80, 160, 320, 640, 1280, 1440, 1440];
+    for (const m of minutes) {
+      wrongFive();
+      clock += m * 60_000 - 1;
+      // Still locked one millisecond before the lock ends, even with the right PIN.
+      expect(code(() => signIn(t, { phone: "9876543210", pin: "1234" }))).toBe("PIN_LOCKED");
+      clock += 1;
+    }
+    // At most 5 guesses a day once the lock has grown to its cap.
+    expect(pinLockMs(5 * 1000)).toBe(24 * 60 * 60_000);
+    expect(signIn(t, { phone: "9876543210", pin: "1234" }).user.id).toBe(diya.id);
+    expect(fresh(t, diya).pin_fails).toBe(0);
+    // After a correct PIN the next lock is back to five minutes.
+    wrongFive();
+    clock += 5 * 60_000;
+    expect(signIn(t, { phone: "9876543210", pin: "1234" }).user.id).toBe(diya.id);
   });
 
   it("counts wrong PINs from the database, not from a user row read before the request", () => {

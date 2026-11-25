@@ -97,7 +97,7 @@ export const TPI_ERROR_COPY: Record<TpiErrorCode, string> = {
   PIN_MISMATCH: "The two PINs don't match",
   ACCOUNT_NOT_FOUND: "No TacketPay account uses this number. Create one instead",
   PIN_INVALID: "Wrong demo PIN",
-  PIN_LOCKED: "Too many wrong PINs. Try again in 5 minutes",
+  PIN_LOCKED: "Too many wrong PINs. Your PIN is locked for a while, so try again later",
   INVALID_AMOUNT: "Enter an amount greater than ₹0",
   AMOUNT_TOO_LARGE: "Demo payments are limited to ₹1,00,000",
   INSUFFICIENT_FUNDS: "Not enough demo money in this account",

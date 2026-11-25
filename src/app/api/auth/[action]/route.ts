@@ -10,12 +10,14 @@ export async function POST(req: NextRequest, ctx: RouteContext<"/api/auth/[actio
   return handle(async () => {
     const { action } = await ctx.params;
     const t = tpi();
+    // Every POST must be JSON, signout included: another site can't send that without a CORS preflight,
+    // which this server never grants, so a cross-site form can't sign someone out.
+    const body = await readJson(req);
     if (action === "signout") {
       signOut(t, await sessionToken());
       await clearSession();
       return { ok: true };
     }
-    const body = await readJson(req);
     let session;
     if (action === "signup") session = signUp(t, { name: str(body, "name"), phone: str(body, "phone"), pin: str(body, "pin") });
     else if (action === "signin") session = signIn(t, { phone: str(body, "phone"), pin: str(body, "pin") });

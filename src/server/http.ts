@@ -44,8 +44,15 @@ export function freshSnapshot(user: UserRow) {
   return snapshot(t, userById(t, user.id)!);
 }
 
+/**
+ * Reads a JSON body, and is also the CSRF guard: only a real `application/json` request gets through.
+ * Another site can send that only after a CORS preflight, which this server never grants. Compare the
+ * whole media type: a "contains" check would let through `text/plain; x=application/json`, which a
+ * browser sends cross-site with no preflight.
+ */
 export async function readJson(req: Request): Promise<Record<string, unknown>> {
-  if (!req.headers.get("content-type")?.includes("application/json")) throw new TpiError("BAD_REQUEST");
+  const type = req.headers.get("content-type")?.split(";")[0].trim().toLowerCase();
+  if (type !== "application/json") throw new TpiError("BAD_REQUEST");
   const body = await req.json().catch(() => null);
   if (!body || typeof body !== "object" || Array.isArray(body)) throw new TpiError("BAD_REQUEST");
   return body as Record<string, unknown>;

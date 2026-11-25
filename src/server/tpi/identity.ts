@@ -10,6 +10,17 @@ import { insertActivity, userById, type UserRow } from "./records";
 const PIN_RE = /^\d{4}$/;
 const MAX_PIN_FAILS = 5;
 const LOCK_MS = 5 * 60_000;
+const MAX_LOCK_MS = 24 * 60 * 60_000;
+
+/**
+ * Every fifth wrong PIN in a row locks the PIN, and each lock lasts twice as long as the one before
+ * (5 min, 10 min, 20 min ... up to 24 hours). A flat 5-minute lock would let anyone who knows a phone
+ * number try about 1,440 PINs a day at sign-in and find a 4-digit PIN within days; this way it takes years.
+ */
+export function pinLockMs(fails: number): number {
+  const locks = Math.floor(fails / MAX_PIN_FAILS);
+  return locks < 1 ? 0 : Math.min(LOCK_MS * 2 ** Math.min(locks - 1, 20), MAX_LOCK_MS);
+}
 const WELCOME_CARDS = 3;
 
 function hashPin(pin: string, salt: string): string {
@@ -106,7 +117,7 @@ export function signUp(t: Tpi, input: { name: string; phone: string; pin: string
   return { user, token: createSession(t, user.id) };
 }
 
-/** Throws PIN_LOCKED or PIN_INVALID; five wrong PINs in a row lock the account for five minutes. */
+/** Throws PIN_LOCKED or PIN_INVALID. Five wrong PINs in a row lock it; see `pinLockMs` for how long. */
 export function verifyPin(t: Tpi, user: UserRow, pin: string) {
   // Re-read the PIN state: `user` was loaded before the request body was awaited, so parallel requests
   // would all see the same old count and never reach the lockout. From here on this runs without yielding.
@@ -121,10 +132,11 @@ export function verifyPin(t: Tpi, user: UserRow, pin: string) {
     if (row.pin_fails) sql(t, "UPDATE users SET pin_fails = 0 WHERE id = ?").run(user.id);
     return;
   }
+  // The count is kept across locks (only a correct PIN clears it), so each new lock is longer.
   const fails = row.pin_fails + 1;
-  const locked = fails >= MAX_PIN_FAILS;
-  sql(t, "UPDATE users SET pin_fails = ?, pin_locked_until = ? WHERE id = ?").run(locked ? 0 : fails, locked ? t.now() + LOCK_MS : 0, user.id);
-  throw new TpiError(locked ? "PIN_LOCKED" : "PIN_INVALID", locked ? 423 : 400);
+  const lockMs = fails % MAX_PIN_FAILS === 0 ? pinLockMs(fails) : 0;
+  sql(t, "UPDATE users SET pin_fails = ?, pin_locked_until = ? WHERE id = ?").run(fails, lockMs ? t.now() + lockMs : 0, user.id);
+  throw new TpiError(lockMs ? "PIN_LOCKED" : "PIN_INVALID", lockMs ? 423 : 400);
 }
 
 export function signIn(t: Tpi, input: { phone: string; pin: string }): { user: UserRow; token: string } {

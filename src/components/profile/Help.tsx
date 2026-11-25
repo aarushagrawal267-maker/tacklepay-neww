@@ -15,7 +15,7 @@ const FAQ = [
     q: "What is TPI?",
     a: "The Tacket Payment Interface: a UPI-style network for demo money. A switch checks who you're paying, debits your account, credits theirs, and if the credit fails it reverses the debit, so money is never lost halfway. Settings → TPI network shows every step.",
   },
-  { q: "What PIN do I use?", a: "The 4-digit demo PIN you chose when you joined. Five wrong tries lock it for five minutes. Never type a real UPI PIN, card PIN or bank password into TacketPay." },
+  { q: "What PIN do I use?", a: "The 4-digit demo PIN you chose when you joined. Five wrong tries in a row lock it for five minutes, and each further lock lasts twice as long (up to a day). Never type a real UPI PIN, card PIN or bank password into TacketPay." },
   { q: "Can I pay a real shop's QR code?", a: "No. If you scan a real UPI code, TacketPay tells you it's real and doesn't pay it. Use your bank's UPI app for real payments." },
   {
     q: "Where is my data stored?",
