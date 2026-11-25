@@ -128,7 +128,8 @@ export function closeCycle(t: Tpi, trigger: "manual" | "timer" = "manual"): Sett
     if (sum !== 0) throw new TpiError("RECON_MISMATCH", 409);
 
     const last = sql(t, "SELECT MAX(closed_at) AS at FROM settlement_cycles").get() as { at: number | null };
-    const openedAt = last.at ?? Math.min(...txns.map((x) => x.created_at));
+    // `txns` is ordered by created_at, so the first is the oldest (no spread: it overflows the stack on big sets).
+    const openedAt = last.at ?? txns[0].created_at;
     const gross = txns.filter((x) => x.state === "SUCCESS").reduce((s, x) => s + x.amount, 0);
     const res = sql(t, "INSERT INTO settlement_cycles (opened_at, closed_at, txn_count, gross, trigger) VALUES (?, ?, ?, ?, ?)").run(
       openedAt,

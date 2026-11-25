@@ -7,11 +7,14 @@ import { resumePending } from "./switch";
 
 const g = globalThis as typeof globalThis & { __tpi?: Tpi; __tpiSettleTimer?: ReturnType<typeof setInterval> };
 
+/** Longest delay a Node timer accepts (about 24.8 days). Anything longer fires after 1 ms instead. */
+const MAX_TIMER_MIN = (2 ** 31 - 1) / 60_000;
+
 /** Minutes between automatic settlement cycles (plan §7: hourly in the demo). `0` turns the timer off. */
 function settleEveryMinutes(): number {
   const raw = process.env.TPI_SETTLE_EVERY_MIN;
   const n = raw === undefined || raw === "" ? 60 : Number(raw);
-  return Number.isFinite(n) && n > 0 ? n : 0;
+  return Number.isFinite(n) && n > 0 ? Math.min(n, MAX_TIMER_MIN) : 0;
 }
 
 /**
@@ -31,7 +34,7 @@ export function tpi(): Tpi {
         const out = settleIfDue(t);
         if (typeof out !== "string") console.log(`[tpi] settlement cycle ${out.id} closed: ${out.txnCount} payments`);
         else if (out === "RECON_MISMATCH") console.warn("[tpi] settlement refused: reconciliation exceptions (see Settings → TPI network)");
-      }, minutes * 60_000);
+      }, Math.floor(minutes * 60_000));
       g.__tpiSettleTimer.unref?.();
     }
   }
