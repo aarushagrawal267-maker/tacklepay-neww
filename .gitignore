@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -49,3 +50,23 @@ next-env.d.ts
 
 # source archives (the project used to be uploaded as a zip)
 *.zip
+
+# other database files and data dumps (never commit real or demo user data)
+*.sqlite
+*.sqlite3
+*.sql
+*.sql.gz
+*.dump
+*.bak
+
+# keys and credential files
+*.key
+*.p12
+*.pfx
+credentials*.json
+service-account*.json
+
+# Python virtual environments (helper scripts)
+.venv/
+venv/
+__pycache__/
