@@ -58,6 +58,8 @@ All optional. Put them in your shell or a `.env.local` file (never commit it).
 | `TPI_DB_PATH` | `data/tpi.db` | Where the SQLite books live. Created and set up automatically on first run. |
 | `TPI_SETTLE_EVERY_MIN` | `60` | Minutes between automatic settlement cycles. `0` turns the timer off (you can still settle from the app). |
 | `PORT` | `3000` | Port for `npm start`. |
+| `NEXT_PUBLIC_TPI_PUBLIC_DEMO` | unset | `1` on a public demo server (read at build time): it opens the Diya and Aarush accounts when it starts, and the welcome screen lists them and says that demo data resets. |
+| `TPI_FRAME_ANCESTORS` | unset | Sites allowed to show the app in an iframe, e.g. `https://huggingface.co` (read at build time). Unset, no site may frame it. When set, the session cookie becomes `SameSite=None; Secure; Partitioned` so sign-in works inside that iframe. |
 
 ### Check that it works
 
@@ -145,9 +147,11 @@ Everything from the reference kit, made functional:
     person over any rolling 24 hours. They are enforced on the server by the participant, not just the app.
   - **Accounts** (`identity.ts`): sign up or sign in with a mobile number and a 4-digit demo PIN (scrypt
     hashed; locks after 5 wrong tries in a row, for 5 minutes, then twice as long each time up to 24 hours).
-    The session is an httpOnly, SameSite=Lax cookie, and every POST must be `application/json`, which
+    The session is an httpOnly, SameSite=Lax cookie (SameSite=None and Partitioned only when
+    `TPI_FRAME_ANCESTORS` lets a site embed the app), and every POST must be `application/json`, which
     another site can't send without a CORS preflight the server never grants (CSRF). Every response
-    carries security headers (`next.config.ts`): no framing, `nosniff`, and camera only for this site.
+    carries security headers (`next.config.ts`): no framing (except by the sites in `TPI_FRAME_ANCESTORS`),
+    `nosniff`, and camera only for this site.
   - **Settlement** (`settlement.ts`): cycles, net positions, the zero-sum rule and reconciliation
     exceptions (plan §7). Settlement is bookkeeping only: no bank is involved.
   - **Storage**: Node's built-in SQLite in `data/tpi.db` (set `TPI_DB_PATH` to move it). Hosting needs a
@@ -181,6 +185,16 @@ TacketPay is a normal Node server (`npm run build && npm start`) that needs a **
 `data/tpi.db`. Railway, Render, Fly.io or any small VM work: use Node 22.13+ (24 recommended), the build
 command `npm ci && npm run build`, the start command `npm start`, mount a volume and set `TPI_DB_PATH` to a
 file on it, and use `/api/healthz` as the health check. Serverless hosts such as Vercel would lose the file.
+
+**A public demo container** is ready in [`deploy/huggingface/`](deploy/huggingface) (not deployed yet):
+`Dockerfile` (Node 24, `npm ci && npm run build`, then `npm start` on port 7860 as user 1000, with
+`NEXT_PUBLIC_TPI_PUBLIC_DEMO=1` and `TPI_FRAME_ANCESTORS=https://huggingface.co`), `.dockerignore`, and
+`README.md` with the settings for a Hugging Face Docker Space. To publish it as a Space, copy this project
+(without `node_modules`, `.next` or `data`) and put those three files at its root; on Hugging Face, Docker
+Spaces may need a paid (PRO) account. The same image runs on any Docker host (`docker run -p 7860:7860 ...`).
+It keeps the demo network inside the container, so the network starts over whenever the container restarts
+("demo data resets periodically", as its welcome screen says), and on start it opens Diya and Aarush so
+visitors have someone to pay. For data that should last, mount a volume and point `TPI_DB_PATH` at it.
 
 ## Limitations
 
