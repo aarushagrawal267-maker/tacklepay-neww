@@ -77,7 +77,7 @@ export function SideNav() {
             aria-label={`Profile: ${profile.name}`}
             className={`press flex items-center gap-3 rounded-xl p-2 ${pathname === "/profile" ? "bg-surface-2" : ""}`}
           >
-            <Avatar name={profile.name || "You"} color="#1f6ff2" size={38} className="!rounded-full" />
+            <Avatar name={profile.name || "You"} size={38} className="!rounded-full" />
             <span className="hidden min-w-0 lg:block">
               <span className="block truncate text-sm font-medium">{profile.name}</span>
               <span className="block truncate text-xs text-text-2">{profile.handle}</span>

@@ -4,6 +4,7 @@ import { useMemo, useSyncExternalStore } from "react";
 import { Avatar, ContactAvatar } from "@/components/ui/Avatar";
 import { DemoBadge } from "@/components/ui/DemoBadge";
 import { Icon, type IconName } from "@/components/ui/Icon";
+import { Perforation } from "@/components/ui/Perforation";
 import { QrCode } from "@/components/ui/QrCode";
 import { totalBalance } from "@/lib/actions";
 import { formatDay, formatTime } from "@/lib/format";
@@ -39,14 +40,15 @@ export function WalletPanel() {
     <aside aria-label="Wallet" className="wallet-panel h-dvh w-[21rem] shrink-0 flex-col gap-4 overflow-y-auto px-5 py-6">
       {signedIn ? (
         <>
-          <section className="rounded-2xl border border-line p-5">
+          <section className="overflow-hidden rounded-2xl border border-line p-5">
             <div className="flex items-center justify-between">
               <h2 className="text-sm text-text-2">Total balance</h2>
               <DemoBadge compact />
             </div>
             <p className="money mt-2 text-[2rem] font-medium leading-tight">{formatMoney(balance)}</p>
             <p className="mt-1 truncate text-xs text-text-3">{handle}</p>
-            <ul className="mt-4 space-y-2 border-t border-line pt-3">
+            <Perforation className="-mx-5 mt-4" />
+            <ul className="mt-3 space-y-2">
               {accounts.map((a) => (
                 <li key={a.id} className="flex items-center justify-between gap-3 text-sm">
                   <span className="min-w-0 truncate text-text-2">

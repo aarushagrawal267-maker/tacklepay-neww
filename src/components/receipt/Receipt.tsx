@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Badge, DemoBadge, DemoNotice } from "@/components/ui/DemoBadge";
 import { Icon } from "@/components/ui/Icon";
 import { NotFound } from "@/components/ui/NotFound";
+import { Perforation } from "@/components/ui/Perforation";
 import { ScreenSkeleton } from "@/components/ui/Screen";
 import { toast } from "@/components/ui/toast";
 import { TopBar } from "@/components/ui/TopBar";
@@ -87,66 +88,71 @@ export function Receipt() {
         menu={[{ label: "Share receipt", onSelect: share }, { label: "Send feedback" }]}
       />
       <main className="relative min-h-0 flex-1 overflow-y-auto">
-        <section className="relative mx-4 mt-3 overflow-hidden rounded-2xl border border-line px-6 pb-6 pt-7 text-center">
-          <Watermark />
-          {reversed ? (
-            <span className="relative mx-auto grid size-16 place-items-center rounded-full bg-danger-soft text-danger">
-              <Icon name="undo" size={34} />
-            </span>
-          ) : (
-            <div className={`relative flex flex-col items-center ${debit ? "text-primary" : "text-success"}`}>
-              <SuccessMark animate={fresh} />
-            </div>
-          )}
-          <p className={`relative mt-4 text-[0.9375rem] text-text-2 ${fresh ? "animate-rise [animation-delay:250ms]" : ""}`}>
-            {reversed ? `Couldn't pay ${tx.counterpartyName}` : `${debit ? "Paid to" : "Received from"} ${tx.counterpartyName}`}
-          </p>
-          <p
-            className={`money relative mt-1 text-[2.5rem] font-medium leading-tight ${reversed ? "text-text-3 line-through" : debit ? "text-text" : "text-success"} ${fresh ? "animate-rise [animation-delay:320ms]" : ""}`}
-          >
-            {formatMoney(tx.amount)}
-          </p>
-          <p className="relative mt-1 text-[0.8125rem] text-text-3">{formatFull(tx.at)}</p>
-          <div className="relative mt-4 flex justify-center gap-2">
+        {/* One stub: the amount on top, torn along the perforation from the counterfoil details. */}
+        <article className="mx-4 mt-3 overflow-hidden rounded-2xl border border-line bg-surface">
+          <section className="relative px-6 pb-6 pt-7 text-center">
+            <Watermark />
             {reversed ? (
-              <Badge tone="danger">Failed · money returned</Badge>
+              <span className="relative mx-auto grid size-16 place-items-center rounded-full bg-danger-soft text-danger">
+                <Icon name="undo" size={34} />
+              </span>
             ) : (
-              <Badge tone={tx.status === "pending" ? "warn" : "success"}>{tx.status === "pending" ? "Processing" : debit ? "Paid" : "Received"}</Badge>
-            )}
-            <DemoBadge />
-          </div>
-          <p className="relative mt-3 text-[0.8125rem] text-text-3">Not a real payment</p>
-        </section>
-
-        <section className="relative mx-4 mt-3 overflow-hidden rounded-2xl bg-surface-2">
-          <Watermark />
-          <dl className="relative divide-y divide-line">
-            <Row label={debit ? "To" : "From"}>
-              <div className="flex items-center gap-3">
-                {contact && <ContactAvatar contact={contact} size={36} />}
-                <div className="min-w-0">
-                  <p className="truncate font-medium">{tx.counterpartyName}</p>
-                  <p className="truncate text-xs text-text-2">{tx.counterpartyHandle}</p>
-                </div>
+              <div className={`relative flex flex-col items-center ${debit ? "text-primary" : "text-success"}`}>
+                <SuccessMark animate={fresh} />
               </div>
-            </Row>
-            <Row label={debit ? "From" : "To"}>
-              <p className="font-medium">{profile.name || "You"}</p>
-              <p className="text-xs text-text-2">{account ? `${account.bank} ${account.last4}` : "Demo account"}</p>
-            </Row>
-            {tx.note && <Row label="Note">{tx.note}</Row>}
-            <Row label={viaTpi ? "RRN (same on both phones)" : "Demo reference"}>
-              <span className="money text-[0.875rem]">{groupRef(tx.ref)}</span>
-            </Row>
-            {viaTpi && (
-              <Row label="TPI transaction ID">
-                <span className="money text-[0.875rem]">{tx.txnId}</span>
-              </Row>
             )}
-            {viaTpi && <Row label="Network">{route(payer, payee)}</Row>}
-            <Row label="Type">{typeLabel}</Row>
-          </dl>
-        </section>
+            <p className={`relative mt-4 text-[0.9375rem] text-text-2 ${fresh ? "animate-rise [animation-delay:250ms]" : ""}`}>
+              {reversed ? `Couldn't pay ${tx.counterpartyName}` : `${debit ? "Paid to" : "Received from"} ${tx.counterpartyName}`}
+            </p>
+            <p
+              className={`money relative mt-1 text-[2.5rem] font-medium leading-tight ${reversed ? "text-text-3 line-through" : debit ? "text-text" : "text-success"} ${fresh ? "animate-rise [animation-delay:320ms]" : ""}`}
+            >
+              {formatMoney(tx.amount)}
+            </p>
+            <p className="relative mt-1 text-[0.8125rem] text-text-3">{formatFull(tx.at)}</p>
+            <div className="relative mt-4 flex justify-center gap-2">
+              {reversed ? (
+                <Badge tone="danger">Failed · money returned</Badge>
+              ) : (
+                <Badge tone={tx.status === "pending" ? "warn" : "success"}>{tx.status === "pending" ? "Processing" : debit ? "Paid" : "Received"}</Badge>
+              )}
+              <DemoBadge />
+            </div>
+            <p className="relative mt-3 text-[0.8125rem] text-text-3">Not a real payment</p>
+          </section>
+
+          <Perforation />
+
+          <section className="relative">
+            <Watermark />
+            <dl className="relative divide-y divide-line">
+              <Row label={debit ? "To" : "From"}>
+                <div className="flex items-center gap-3">
+                  {contact && <ContactAvatar contact={contact} size={36} />}
+                  <div className="min-w-0">
+                    <p className="truncate font-medium">{tx.counterpartyName}</p>
+                    <p className="truncate text-xs text-text-2">{tx.counterpartyHandle}</p>
+                  </div>
+                </div>
+              </Row>
+              <Row label={debit ? "From" : "To"}>
+                <p className="font-medium">{profile.name || "You"}</p>
+                <p className="text-xs text-text-2">{account ? `${account.bank} ${account.last4}` : "Demo account"}</p>
+              </Row>
+              {tx.note && <Row label="Note">{tx.note}</Row>}
+              <Row label={viaTpi ? "RRN (same on both phones)" : "Demo reference"}>
+                <span className="money text-[0.875rem]">{groupRef(tx.ref)}</span>
+              </Row>
+              {viaTpi && (
+                <Row label="TPI transaction ID">
+                  <span className="money text-[0.875rem]">{tx.txnId}</span>
+                </Row>
+              )}
+              {viaTpi && <Row label="Network">{route(payer, payee)}</Row>}
+              <Row label="Type">{typeLabel}</Row>
+            </dl>
+          </section>
+        </article>
 
         {reversed && (
           <p className="mx-4 mt-3 rounded-2xl border border-line p-4 text-sm text-text-2">

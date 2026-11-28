@@ -75,7 +75,7 @@ export function Home({ onOpenScanner }: { onOpenScanner: () => void }) {
         <span className="flex items-center justify-end gap-0.5">
           <ThemeToggle className="sm:hidden" />
           <Link href="/profile" aria-label="Profile" className="press rounded-full p-1">
-            {hydrated ? <Avatar name={name || "You"} color="#1f6ff2" size={30} className="!rounded-full" /> : <span className="skeleton block size-[1.875rem] rounded-full" />}
+            {hydrated ? <Avatar name={name || "You"} size={30} className="!rounded-full" /> : <span className="skeleton block size-[1.875rem] rounded-full" />}
           </Link>
         </span>
       </header>

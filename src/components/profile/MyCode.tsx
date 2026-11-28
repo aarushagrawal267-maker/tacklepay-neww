@@ -83,7 +83,7 @@ export function MyCode() {
       <div ref={pager} className="no-scrollbar flex min-h-0 flex-1 snap-x snap-mandatory overflow-x-auto">
         <section className="flex w-full shrink-0 snap-start flex-col items-center justify-center overflow-y-auto px-8 pb-6 text-center" aria-label="Profile">
           <DottedRing size={260}>
-            <Avatar name={profile.name} color="#1f6ff2" size={104} className="!rounded-full" />
+            <Avatar name={profile.name} size={104} className="!rounded-full" />
           </DottedRing>
           <h1 className="mt-5 text-[1.375rem]">{profile.name}</h1>
           <p className="mt-2 text-sm text-text-2">Friends can scan your QR code to pay you demo money</p>

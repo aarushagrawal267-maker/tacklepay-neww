@@ -368,6 +368,34 @@ body {
   background-size: 4px 1px;
 }
 
+/* Stub edge (see ui/Perforation.tsx): the dashed tear line with a notch cut into each side.
+   The notches are full circles centred on the card's 1px border; the card's overflow-hidden
+   clips their outer half, leaving a half-round bite outlined in the same hairline. */
+.perforation {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 1rem;
+  padding-inline: 1rem;
+}
+.perforation::before,
+.perforation::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 9999px;
+  background: var(--notch, var(--bg));
+  border: 1px solid var(--line);
+}
+.perforation::before {
+  left: calc(-0.5rem - 0.5px);
+}
+.perforation::after {
+  right: calc(-0.5rem - 0.5px);
+}
+
 /* Material-ish state layer for pressable surfaces. */
 .press {
   position: relative;

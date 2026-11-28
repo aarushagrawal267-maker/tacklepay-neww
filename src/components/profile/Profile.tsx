@@ -69,7 +69,7 @@ export function Profile() {
           </div>
           <Link href="/my-code" aria-label="Show my QR code" className="press shrink-0 rounded-full">
             <DottedRing size={104}>
-              <Avatar name={profile.name} color="#1f6ff2" size={60} className="!rounded-full" />
+              <Avatar name={profile.name} size={60} className="!rounded-full" />
               <span className="absolute -bottom-0.5 -right-0.5 grid size-7 place-items-center rounded-lg bg-text text-bg ring-2 ring-[var(--bg)]">
                 <Icon name="qr_code_2" size={16} />
               </span>

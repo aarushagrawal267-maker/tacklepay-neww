@@ -74,7 +74,7 @@ export function AmountEntry({
 
       <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
         <div className="flex items-center gap-2">
-          <Avatar name={me} color="#1f6ff2" size={44} />
+          <Avatar name={me} size={44} />
           <Icon name={mode === "pay" ? "arrow_forward" : "arrow_back"} className="text-text-3" />
           <ContactAvatar contact={contact} size={44} />
         </div>
