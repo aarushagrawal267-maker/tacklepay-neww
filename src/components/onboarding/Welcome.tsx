@@ -3,11 +3,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/Button";
 import { Segmented } from "@/components/ui/Card";
-import { DemoBadge } from "@/components/ui/DemoBadge";
+import { DemoBadge, DemoNotice } from "@/components/ui/DemoBadge";
 import { Field } from "@/components/ui/Field";
 import { Icon, type IconName } from "@/components/ui/Icon";
 import { LogoMark, Wordmark } from "@/components/ui/Logo";
 import { errorText, tpiApi } from "@/lib/api";
+import { DEMO_ACCOUNTS, PUBLIC_DEMO } from "@/lib/seed";
 import { useHydrated, useStore } from "@/lib/store";
 
 const POINTS: { icon: IconName; title: string; body: string }[] = [
@@ -116,6 +117,20 @@ export function Welcome() {
             </li>
           ))}
         </ul>
+
+        {PUBLIC_DEMO && (
+          <DemoNotice className="mt-8">
+            <strong className="font-semibold">Public demo: data resets periodically.</strong> Accounts, balances and
+            payments on this server are wiped whenever it restarts. To try a payment, sign in as{" "}
+            {DEMO_ACCOUNTS.map((a, i) => (
+              <span key={a.phone}>
+                {i > 0 && " and pay "}
+                {a.name} (<span className="whitespace-nowrap">{`${a.phone.slice(0, 5)} ${a.phone.slice(5)}`}</span>, PIN {a.pin})
+              </span>
+            ))}
+            , or create your own account with a made-up number: other visitors can see names on this server.
+          </DemoNotice>
+        )}
 
         <div className="mt-10">
           <Segmented options={MODES} value={mode} onChange={switchMode} label="Create an account or sign in" />

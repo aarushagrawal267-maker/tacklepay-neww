@@ -2,7 +2,7 @@
 // The PIN is checked only here, by the payer's own participant — it never reaches the switch.
 import { createHash, randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 import { MAX_BALANCE_PAISE } from "@/lib/money";
-import { colorFor, DEMO_BANK, STARTING_BALANCE } from "@/lib/seed";
+import { colorFor, DEMO_ACCOUNTS, DEMO_BANK, STARTING_BALANCE } from "@/lib/seed";
 import { atomic, sql, TpiError, type Tpi } from "./db";
 import { openAccount, post, systemAccount } from "./ledger";
 import { insertActivity, userById, type UserRow } from "./records";
@@ -115,6 +115,17 @@ export function signUp(t: Tpi, input: { name: string; phone: string; pin: string
     return userById(t, id)!;
   });
   return { user, token: createSession(t, user.id) };
+}
+
+/** Opens the public demo's accounts (DEMO_ACCOUNTS) that don't exist yet. Returns how many it opened. */
+export function ensureDemoAccounts(t: Tpi): number {
+  let opened = 0;
+  for (const a of DEMO_ACCOUNTS) {
+    if (sql(t, "SELECT 1 FROM users WHERE phone = ?").get(a.phone)) continue;
+    signUp(t, a);
+    opened++;
+  }
+  return opened;
 }
 
 /** Throws PIN_LOCKED or PIN_INVALID. Five wrong PINs in a row lock it; see `pinLockMs` for how long. */

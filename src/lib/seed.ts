@@ -263,6 +263,17 @@ export const PLAN_TABS: { id: string; label: string; plans: Plan[] }[] = [
 export const STARTING_BALANCE = 10_000_00;
 export const DEMO_BANK = "Tacket Demo Bank";
 
+/**
+ * A public demo server (NEXT_PUBLIC_TPI_PUBLIC_DEMO=1, e.g. the Hugging Face Space) opens these two accounts
+ * when it starts, and its welcome screen lists them, so a visitor can try a payment without a second person.
+ * They are the same accounts `npm run smoke` uses. Demo PINs only: never a real one.
+ */
+export const PUBLIC_DEMO = process.env.NEXT_PUBLIC_TPI_PUBLIC_DEMO === "1";
+export const DEMO_ACCOUNTS = [
+  { name: "Diya", phone: "9876543210", pin: "1234" },
+  { name: "Aarush", phone: "9123456789", pin: "4321" },
+] as const;
+
 /** Handles of fictional billers and recharge operators. All of them are shops on the Tacket participant. */
 export function billerHandle(providerId: string): string {
   return `${providerId.replace(/[^a-z0-9]+/g, ".")}.bills@tacket`;

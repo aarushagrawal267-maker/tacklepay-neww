@@ -7,7 +7,7 @@ import { MAX_BALANCE_PAISE } from "@/lib/money";
 import { billerHandle, STARTING_BALANCE } from "@/lib/seed";
 import { bankHandle } from "@/lib/tpi";
 import { openTpi, sql, TpiError, type Tpi } from "../db";
-import { pinLockMs, signIn, signUp, userForSession, verifyPin } from "../identity";
+import { ensureDemoAccounts, pinLockMs, signIn, signUp, userForSession, verifyPin } from "../identity";
 import { ledgerSum, post, systemAccount } from "../ledger";
 import { bootstrap, networkView } from "../network";
 import { PARTICIPANT_IMPL } from "../participants";
@@ -71,6 +71,17 @@ describe("accounts", () => {
     expect(user.name).toBe("Diya");
     expect(userForSession(t, token)?.id).toBe(user.id);
     expect(code(() => signIn(t, { phone: "9876543210", pin: "9999" }))).toBe("PIN_INVALID");
+  });
+
+  it("opens the public demo's Diya and Aarush once, keeping existing accounts as they are", () => {
+    const t = network();
+    expect(ensureDemoAccounts(t)).toBe(2);
+    const diya = signIn(t, { phone: "9876543210", pin: "1234" }).user;
+    expect(signIn(t, { phone: "9123456789", pin: "4321" }).user.handle).toBe("aarush@tpay");
+    wallet.pay(t, diya, { payeeHandle: "aarush@tpay", payeeName: "Aarush", amount: 250_00, method: "contact", pin: "1234" });
+    // A second start (or a visitor who already made them) opens nothing and changes no balance.
+    expect(ensureDemoAccounts(t)).toBe(0);
+    expect(balance(t, fresh(t, diya))).toBe(STARTING_BALANCE - 250_00);
   });
 
   it("locks the PIN after five wrong tries", () => {

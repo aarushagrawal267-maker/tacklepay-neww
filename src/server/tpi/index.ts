@@ -1,6 +1,8 @@
 // The running TPI network for this server process.
 import path from "node:path";
+import { PUBLIC_DEMO } from "@/lib/seed";
 import { openTpi, type Tpi } from "./db";
+import { ensureDemoAccounts } from "./identity";
 import { bootstrap } from "./network";
 import { settleIfDue } from "./settlement";
 import { resumePending } from "./switch";
@@ -26,6 +28,8 @@ export function tpi(): Tpi {
     const t = openTpi(process.env.TPI_DB_PATH || path.join(process.cwd(), "data", "tpi.db"));
     bootstrap(t);
     resumePending(t);
+    // A public demo starts with Diya and Aarush, so visitors can pay someone straight away.
+    if (PUBLIC_DEMO && process.env.NEXT_PHASE !== "phase-production-build") ensureDemoAccounts(t);
     g.__tpi = t;
     // No timers while `next build` prerenders pages; only a running server settles.
     const minutes = settleEveryMinutes();
