@@ -69,9 +69,9 @@ export function Rewards() {
                     setScratching(r);
                   }}
                   aria-label="Unscratched scratch card"
-                  className="press relative flex aspect-square w-full flex-col items-center justify-center overflow-hidden rounded-2xl bg-primary text-primary-ink"
+                  className="press relative flex aspect-square w-full flex-col items-center justify-center overflow-hidden rounded-2xl border border-dashed border-line-strong bg-surface-2 text-text"
                 >
-                  <Icon name="redeem" size={44} className="relative" />
+                  <Icon name="redeem" size={44} className="relative text-primary-fg" />
                   <span className="relative mt-2 text-xs font-medium">Scratch card</span>
                 </button>
               )}
