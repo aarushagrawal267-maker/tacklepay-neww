@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { DemoBadge } from "@/components/ui/DemoBadge";
-import { LogoMark } from "@/components/ui/Logo";
+import { LogoMark, Wordmark } from "@/components/ui/Logo";
 
 /** Cold-start splash from the reference app (logo centred, name at the bottom), kept short. */
 export function Splash() {
@@ -22,7 +22,7 @@ export function Splash() {
     >
       <LogoMark size={96} />
       <div className="absolute bottom-10 flex flex-col items-center gap-3">
-        <span className="text-[1.625rem] font-bold text-text-2">TacketPay</span>
+        <Wordmark className="text-[1.625rem]" />
         <DemoBadge />
       </div>
     </div>

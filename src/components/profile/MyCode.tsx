@@ -102,7 +102,7 @@ export function MyCode() {
             {link ? <QrCode value={link} size={208} label={`QR code to pay ${profile.name}`} /> : <div className="skeleton size-64 rounded-2xl" />}
           </div>
           <p className="mt-4 text-xs text-text-2">{profile.handle}</p>
-          <h1 className="mt-5 text-lg font-bold">{profile.name}</h1>
+          <h1 className="mt-5 text-lg font-medium">{profile.name}</h1>
           {profile.phone && <p className="text-[0.8125rem]">{profile.phone}</p>}
           {amount ? (
             <p className="mt-3 flex items-center gap-2 rounded-[0.625rem] bg-primary-soft py-1 pl-3 pr-1 text-sm text-primary-fg">
@@ -155,7 +155,7 @@ function AmountSheet({ open, onClose, onSave }: { open: boolean; onClose: () => 
           }
         }}
       >
-        <label className="flex h-16 items-center gap-1 rounded-2xl border-2 border-primary-fg px-4 text-3xl font-bold">
+        <label className="flex h-16 items-center gap-1 rounded-2xl border-2 border-primary-fg px-4 text-3xl font-medium">
           <span>{CURRENCY_SYMBOL}</span>
           <input
             data-autofocus

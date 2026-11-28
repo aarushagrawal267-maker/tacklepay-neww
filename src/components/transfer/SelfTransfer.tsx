@@ -87,7 +87,7 @@ export function SelfTransfer() {
                 <Icon name="account_balance" size={22} />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block text-sm font-bold">
+                <span className="block text-sm font-medium">
                   {a.bank} {a.last4}
                 </span>
                 <span className="block text-sm text-text-2">{a.type}</span>

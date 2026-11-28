@@ -115,7 +115,7 @@ export function Receipt() {
             )}
             <DemoBadge />
           </div>
-          <p className="relative mt-3 text-[0.75rem] font-medium uppercase tracking-wider text-text-3">Not a real payment</p>
+          <p className="relative mt-3 text-[0.8125rem] text-text-3">Not a real payment</p>
         </section>
 
         <section className="relative mx-4 mt-3 overflow-hidden rounded-2xl bg-surface-2">

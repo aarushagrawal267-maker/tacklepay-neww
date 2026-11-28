@@ -6,7 +6,7 @@ import { Avatar, ContactAvatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { DemoBadge } from "@/components/ui/DemoBadge";
 import { Icon, type IconName } from "@/components/ui/Icon";
-import { LogoMark } from "@/components/ui/Logo";
+import { LogoMark, Wordmark } from "@/components/ui/Logo";
 import { toast } from "@/components/ui/toast";
 import { formatDay, formatTime } from "@/lib/format";
 import { useBusinesses, useRecentPeople } from "@/lib/hooks";
@@ -66,9 +66,10 @@ export function Home({ onOpenScanner }: { onOpenScanner: () => void }) {
         <button type="button" onClick={onOpenScanner} aria-label="Scan QR code" className="press grid size-10 place-items-center rounded-[0.625rem] text-text-2">
           <Icon name="qr_code_scanner" size={22} />
         </button>
-        <span className="flex items-center gap-1.5">
+        {/* From 1024px the side nav shows the wordmark and demo badge, so the header hides its copy there. */}
+        <span className="flex items-center gap-1.5 lg:invisible">
           <LogoMark size={20} />
-          <span className="text-[1.0625rem] font-medium tracking-tight">Tacket</span>
+          <Wordmark className="text-[1.0625rem]" />
           <DemoBadge compact className="ml-1" />
         </span>
         <span className="flex items-center justify-end gap-0.5">
@@ -118,7 +119,7 @@ export function Home({ onOpenScanner }: { onOpenScanner: () => void }) {
 function SectionHeader({ id, title, action }: { id: string; title: string; action?: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <h2 id={id} className="text-[1.0625rem] font-medium tracking-tight">
+      <h2 id={id} className="text-[1.0625rem] font-medium">
         {title}
       </h2>
       {action}

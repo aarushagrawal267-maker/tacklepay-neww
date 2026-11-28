@@ -46,15 +46,15 @@ export function PromoDetail({ kind }: { kind: "offer" | "business" }) {
           )}
         </div>
         <div className="px-5 pt-5">
-          <p className="text-xs uppercase tracking-wider text-text-2">From {offer?.from ?? promo!.brand}</p>
+          <p className="text-xs text-text-2">From {offer?.from ?? promo!.brand}</p>
           <h1 className="mt-1 text-2xl font-medium leading-tight">{title}</h1>
           <p className="mt-2 text-[0.9375rem] text-text-2">{description}</p>
           <DemoBadge className="mt-3" />
-          <h2 className="mt-7 text-sm font-bold">Offer dates</h2>
+          <h2 className="mt-7 text-sm font-medium">Offer dates</h2>
           <p className="mt-1 text-sm text-text-2">{expires}</p>
-          <h2 className="mt-5 text-sm font-bold">Details</h2>
+          <h2 className="mt-5 text-sm font-medium">Details</h2>
           <p className="mt-1 text-sm leading-relaxed text-text-2">{details}</p>
-          <h2 className="mt-5 text-sm font-bold">Terms and conditions</h2>
+          <h2 className="mt-5 text-sm font-medium">Terms and conditions</h2>
           <p className="mt-1 text-sm leading-relaxed text-text-2">Rewards are demo money with no cash value. One reward per TacketPay ID. Offer is part of a product demo and may change at any time.</p>
         </div>
       </main>

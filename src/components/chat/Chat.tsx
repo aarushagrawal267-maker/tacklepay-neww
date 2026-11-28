@@ -80,7 +80,7 @@ export function Chat() {
           <span className="flex items-center gap-3">
             <ContactAvatar contact={contact} size={40} />
             <span className="min-w-0">
-              <span className="block truncate text-sm font-bold">{contact.name}</span>
+              <span className="block truncate text-sm font-medium">{contact.name}</span>
               <span className="block truncate text-xs font-normal text-text-2">{contact.phone ?? contact.subtitle ?? contact.handle}</span>
             </span>
           </span>
