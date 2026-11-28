@@ -8,7 +8,7 @@ import { OverflowMenu } from "@/components/ui/OverflowMenu";
 import { toast } from "@/components/ui/toast";
 import { useBack } from "@/components/ui/TopBar";
 import { formatMoney } from "@/lib/money";
-import { colorFor, BILL_CATEGORIES } from "@/lib/seed";
+import { BILL_CATEGORIES } from "@/lib/seed";
 import { useStore } from "@/lib/store";
 
 const SUGGESTED = BILL_CATEGORIES.flatMap((c) => c.providers.slice(0, 1).map((p) => ({ ...p, categoryId: c.id })));
@@ -60,7 +60,7 @@ export function Bills() {
                   {linked.map((b) => (
                     <li key={b.id}>
                       <Link href={`/bills/${b.categoryId}/${b.providerId}`} className="press flex items-center gap-3 rounded-2xl bg-surface-2 p-3">
-                        <Avatar name={b.providerName} color={colorFor(b.providerName)} size={40} />
+                        <Avatar name={b.providerName} size={40} />
                         <span className="min-w-0 flex-1">
                           <span className="block truncate text-sm font-medium">{b.label ?? b.providerName}</span>
                           <span className="block truncate text-xs text-text-2">{b.accountNumber}</span>
@@ -79,7 +79,7 @@ export function Bills() {
                 {SUGGESTED.map((p) => (
                   <li key={p.id} className="min-w-0">
                     <Link href={`/bills/${p.categoryId}/${p.id}`} className="press flex flex-col items-center gap-2 rounded-xl py-1.5">
-                      <Avatar name={p.name} color={colorFor(p.name)} size={48} />
+                      <Avatar name={p.name} size={48} />
                       <span className="line-clamp-2 w-full px-0.5 text-center text-[0.8125rem] leading-tight">{p.name}</span>
                     </Link>
                   </li>
@@ -111,7 +111,7 @@ export function Bills() {
 export function ProviderRow({ href, name, detail }: { href: string; name: string; detail: string }) {
   return (
     <Link href={href} className="press -mx-2 flex items-center gap-4 rounded-xl px-2 py-3">
-      <Avatar name={name} color={colorFor(name)} size={44} />
+      <Avatar name={name} size={44} />
       <span className="min-w-0">
         <span className="block truncate text-[0.9375rem]">{name}</span>
         <span className="block truncate text-[0.8125rem] text-text-2">{detail}</span>

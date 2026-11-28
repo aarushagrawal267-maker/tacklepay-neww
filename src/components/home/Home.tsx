@@ -105,8 +105,8 @@ export function Home({ onOpenScanner }: { onOpenScanner: () => void }) {
       <Link
         href="/explore"
         tabIndex={fabVisible ? 0 : -1}
-        className={`press absolute bottom-5 left-1/2 z-10 flex h-12 -translate-x-1/2 items-center gap-1.5 rounded-full bg-primary pl-4 pr-5 text-[0.9375rem] font-medium text-white transition-[opacity,transform] duration-200 ${
-          fabVisible ? "opacity-100" : "pointer-events-none translate-y-6 opacity-0"
+        className={`press absolute bottom-5 left-1/2 z-10 flex h-12 -translate-x-1/2 items-center gap-1.5 rounded-full bg-primary pl-4 pr-5 text-[0.9375rem] font-medium text-white shadow-e2 transition-[opacity,translate] duration-200 ${
+          fabVisible ? "opacity-100" : "pointer-events-none translate-y-3 opacity-0"
         }`}
       >
         <Icon name="add" size={22} />

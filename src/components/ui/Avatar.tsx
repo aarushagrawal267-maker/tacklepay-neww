@@ -9,7 +9,7 @@ interface AvatarProps {
   icon?: IconName;
   size?: number;
   ring?: boolean;
-  /** "soft" = tinted tile with coloured initials (ledger style); "solid" = filled, for emphasis. */
+  /** "soft" = neutral surface-3 tile, `color` ignored (ledger style); "solid" = filled with `color`. */
   tone?: "soft" | "solid";
   className?: string;
 }

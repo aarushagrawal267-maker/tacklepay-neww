@@ -24,7 +24,7 @@ export function ScratchCard({ size = 260, onReveal, children }: { size?: number;
     c.height = Math.round(shown * dpr);
     const ctx = c.getContext("2d", { willReadFrequently: true })!;
     ctx.scale((shown * dpr) / size, (shown * dpr) / size);
-    // Flat brand blue, the same as the unscratched tiles.
+    // Flat brand blue: the scratch layer is the one bright moment on the reward card.
     ctx.fillStyle = "#1f6ff2";
     ctx.fillRect(0, 0, size, size);
     ctx.fillStyle = "#ffffff";

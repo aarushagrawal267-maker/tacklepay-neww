@@ -121,7 +121,7 @@ export function AddMoney() {
       {/* Backdrop: the balance the sheet will add to, like "Spendable $0.00". */}
       <div className="flex shrink-0 flex-col items-center px-4 pb-10 pt-4">
         <div className="flex w-full">
-          <Avatar name={myName || "You"} color="#5f6670" size={34} className="!rounded-full" />
+          <Avatar name={myName || "You"} size={34} className="!rounded-full !bg-surface" />
         </div>
         <p className="mt-2 text-[0.9375rem] text-text-2">Spendable</p>
         <p className="money text-[2.125rem] font-medium leading-tight">{formatMoney(balance)}</p>
@@ -158,7 +158,7 @@ export function AddMoney() {
                   <span className="mt-2 flex items-center">
                     {people.slice(0, 3).map((p, i) => (
                       <span key={p.id} className="-ml-1.5 rounded-full ring-2 ring-[var(--surface-2)] first:ml-0" style={{ zIndex: 3 - i }}>
-                        <Avatar name={p.name} color={p.color} size={24} tone="solid" className="!rounded-full" />
+                        <Avatar name={p.name} size={24} className="!rounded-full" />
                       </span>
                     ))}
                     <span className="money ml-1.5 text-[0.8125rem] text-text-2">+{Math.max(0, people.length - 3)}</span>

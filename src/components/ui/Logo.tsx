@@ -12,7 +12,7 @@ export function LogoMark({ size = 40, className = "" }: { size?: number; classNa
 
 export function Wordmark({ className = "" }: { className?: string }) {
   return (
-    <span className={`font-medium tracking-tight text-text ${className}`}>
+    <span className={`font-medium text-text ${className}`}>
       Tacket<span className="text-text-3">Pay</span>
     </span>
   );

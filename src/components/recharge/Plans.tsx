@@ -57,7 +57,7 @@ export function Plans() {
         fallback="/recharge"
         title={
           <span className="flex items-center gap-3">
-            <Avatar name={name} icon={contactName ? undefined : "person"} color={operator.color} size={36} />
+            <Avatar name={name} icon={contactName ? undefined : "person"} size={36} />
             <span className="min-w-0">
               <span className="block truncate text-sm font-medium">{name}</span>
               <span className="block truncate text-xs font-normal text-text-2">
