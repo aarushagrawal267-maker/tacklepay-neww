@@ -12,7 +12,7 @@ screen. Replace only what would make the replica misleading:
 | --- | --- | --- |
 | Google Pay logo and name | Original ticket-stub "T" mark, *TacketPay* wordmark | A pixel-copy of a payment brand on a fake-money app is the setup for fake-payment-screenshot scams |
 | Bank, Play, YouTube, Visa, Paytm-style logos | Letter and icon avatars; fictional brands (SkyHop, BusBee, Dropkart…) | Trademarks |
-| Stock photos of people | Coloured letter avatars, as the real app shows for most contacts | Unknown photo licences; no real faces in a payments demo |
+| Stock photos of people | Neutral letter avatars | Unknown photo licences; no real faces in a payments demo |
 | "Spot code" | Your payment QR plus a shareable profile link | Spot is a Google-specific concept; QR is the requested feature |
 | 6-digit passcode, any value | 4-digit **demo PIN** chosen at sign-up and checked by TacketPay's server, with a "never type a real UPI PIN" note | Never train people to type real PINs into a web page |
 
@@ -43,13 +43,24 @@ re-skins them in the Tacket ledger style:
 - **Type:** Inter for text. **Geist Mono for every amount** (`.money`), so figures line up like a ledger.
 - **Status pills:** small 6px-radius tinted badges: danger (Overdue), warn (Pending / Partly paid),
   info (Open), success (Paid / Automatic), and amber for Demo money.
-- **Avatars:** rounded-square initials tiles, tinted from the contact colour in light mode and neutral grey
-  in dark mode.
-- **Buttons:** a glossy blue gradient primary; white outlined secondary with a 1px shadow (a borderless
-  `#161616` chip in dark mode); 10px radius. The Add money sheet uses a full black pill (white in dark), as
+- **Avatars:** rounded-square initials tiles in neutral grey (`--surface-3`) in both themes, so a grid of
+  contacts and billers reads like a ledger column. Contact colours stay in the data but are not painted.
+- **Buttons:** a flat brand-blue primary (`--primary`) with no gradient, gloss or glow; white outlined
+  secondary with a 1px shadow (a borderless `#161616` chip in dark mode); 10px radius. Blue is the one
+  key action on a screen, such as New payment or Proceed to pay. The Add money sheet uses a full black pill (white in dark), as
   in its reference.
 - **Controls:** a segmented control for two-way switches (People / Businesses, Explore tabs), and
   pill-row tabs for recharge plans.
+- **Weights and labels:** 400 and 500, with 600 only for the welcome headline. Labels are sentence case;
+  the only capitals are the receipt watermark, which is a rubber stamp, not a label.
+- **Stub edge (signature):** wherever money settles, a card tears along a perforation: a dashed line with
+  a half-round notch cut into each side, grown from the "T" stub mark and the `.dashed` rule. It appears
+  on the receipt (amount above, counterfoil details below), the confirm sheet (who pays whom above, the
+  fare below) and the wallet balance card, and nowhere else. Use `<Perforation />` inside a `.stub` card,
+  and set `--notch` when the card sits on something other than `--bg`.
+- **Motion:** named transitions only (`transition-colors`, `transition-[translate,scale,color]`), never
+  `transition-all` or animated layout properties. Screens enter with a 12px slide and content rises 8px.
+  Nothing loops except live states: the scanner line while the camera runs, spinners and the coin ring.
 
 | Token | Light | Dark |
 | --- | --- | --- |
@@ -58,7 +69,7 @@ re-skins them in the Tacket ledger style:
 | `--surface-3` (track, chips) | `#eef0f3` | `#1a1a1a` |
 | `--line` | `#e6e8eb` | `#1f1f1f` |
 | `--text` / `--text-2` / `--text-3` | `#0b0d10` / `#5f6670` / `#8b929b` | `#f5f5f5` / `#a3a3a3` / `#737373` |
-| `--primary` (gradient from `--primary-hi`) | `#1f6ff2` (`#3b82ff`) | same |
+| `--primary` (flat) | `#1f6ff2` | same |
 | `--danger` (overdue, paid out) | `#d92d20` | `#f08a8a` |
 | `--due` (due soon, received) | `#c2570c` | `#f0a06a` |
 | `--success` | `#15803d` | `#4ade80` |
