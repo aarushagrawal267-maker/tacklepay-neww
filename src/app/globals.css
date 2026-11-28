@@ -211,13 +211,13 @@ body {
 @keyframes screen-in {
   from {
     opacity: 0;
-    transform: translateX(28px);
+    transform: translateX(12px);
   }
 }
 @keyframes rise-in {
   from {
     opacity: 0;
-    transform: translateY(24px);
+    transform: translateY(8px);
   }
 }
 @keyframes sheet-in {

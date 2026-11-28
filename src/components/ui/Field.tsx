@@ -19,7 +19,8 @@ export function Field({ label, hint, error, className = "", ...rest }: { label: 
         />
         <label
           htmlFor={id}
-          className="pointer-events-none absolute left-4 top-1/2 origin-left -translate-y-1/2 text-base text-text-2 transition-all peer-focus:top-3.5 peer-focus:text-xs peer-focus:text-primary-fg peer-[:not(:placeholder-shown)]:top-3.5 peer-[:not(:placeholder-shown)]:text-xs"
+          // Floats by transform only (translate + scale), never by animating top or font-size.
+          className="pointer-events-none absolute left-4 top-4 origin-top-left text-base leading-6 text-text-2 transition-[translate,scale,color] duration-150 ease-[var(--ease-out)] peer-focus:-translate-y-2 peer-focus:scale-75 peer-focus:text-primary-fg peer-[:not(:placeholder-shown)]:-translate-y-2 peer-[:not(:placeholder-shown)]:scale-75"
         >
           {label}
         </label>
