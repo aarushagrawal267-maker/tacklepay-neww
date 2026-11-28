@@ -5,7 +5,8 @@
  */
 export function HomeIllustration({ className = "" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 400 150" preserveAspectRatio="xMidYMax slice" className={className} aria-hidden="true">
+    // Slice scaling fills wide screens; non-scaling strokes keep the line weight at 1.5px there too.
+    <svg viewBox="0 0 400 150" preserveAspectRatio="xMidYMax slice" className={`[&_*]:[vector-effect:non-scaling-stroke] ${className}`} aria-hidden="true">
       <g fill="none" stroke="var(--line-strong)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         {/* Sun and clouds */}
         <circle cx="318" cy="34" r="13" fill="var(--surface-3)" />
