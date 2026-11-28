@@ -17,19 +17,32 @@ export async function sessionToken(): Promise<string | undefined> {
   return (await cookies()).get(SESSION_COOKIE)?.value;
 }
 
+/**
+ * True when another site may show the app in an iframe (TPI_FRAME_ANCESTORS, see next.config.ts), as the
+ * Hugging Face Space page does for the public demo. Browsers never send a SameSite=Lax cookie inside a
+ * cross-site iframe, so sign-in would not stick there; the session cookie is then SameSite=None,
+ * https-only and Partitioned (kept separately for each embedding site). CSRF stays blocked by `readJson`.
+ */
+const embeddable = () => /(^|\s)https:\/\//.test(process.env.TPI_FRAME_ANCESTORS ?? "");
+
 export async function setSession(req: NextRequest, token: string) {
+  const embedded = embeddable();
   (await cookies()).set(SESSION_COOKIE, token, {
     httpOnly: true,
-    sameSite: "lax",
+    sameSite: embedded ? "none" : "lax",
     // Plain http on a LAN is fine for a demo; over https the cookie is https-only.
-    secure: req.nextUrl.protocol === "https:",
+    secure: embedded || req.nextUrl.protocol === "https:",
+    ...(embedded ? { partitioned: true } : {}),
     path: "/",
     maxAge: 60 * 60 * 24 * 365,
   });
 }
 
 export async function clearSession() {
-  (await cookies()).delete(SESSION_COOKIE);
+  const jar = await cookies();
+  // A partitioned cookie is only removed by a Set-Cookie that is partitioned too.
+  if (embeddable()) jar.delete({ name: SESSION_COOKIE, path: "/", httpOnly: true, sameSite: "none", secure: true, partitioned: true });
+  else jar.delete(SESSION_COOKIE);
 }
 
 export async function requireUser(): Promise<UserRow> {
