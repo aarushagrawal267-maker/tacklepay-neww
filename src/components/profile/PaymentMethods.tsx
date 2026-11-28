@@ -80,7 +80,7 @@ export function PaymentMethods() {
           <ul className="mt-3 space-y-3">
             {cards.map((c) => (
               <li key={c.id} className="flex items-center gap-4">
-                <span className="grid size-10 place-items-center rounded-[0.625rem] bg-gradient-to-br from-[#3b82ff] to-[#0f4fc2] text-white">
+                <span className="grid size-10 place-items-center rounded-[0.625rem] bg-primary text-primary-ink">
                   <Icon name="credit_card" size={22} />
                 </span>
                 <span>

@@ -97,7 +97,7 @@ export function BillProvider() {
             </p>
           </ScrollBody>
           <div className="flex justify-end p-5">
-            <button type="submit" aria-label="Link account" className="press grid size-14 place-items-center rounded-2xl bg-[linear-gradient(180deg,var(--primary-hi),var(--primary))] text-white shadow-e2">
+            <button type="submit" aria-label="Link account" className="press grid size-14 place-items-center rounded-2xl bg-primary text-white shadow-e2">
               <Icon name="chevron_right" size={30} />
             </button>
           </div>

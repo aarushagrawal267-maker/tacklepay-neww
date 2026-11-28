@@ -73,7 +73,7 @@ export function MyCode() {
               aria-selected={page === i}
               aria-label={label}
               onClick={() => goTo(i)}
-              className={`h-1.5 rounded-full transition-all ${page === i ? "w-5 bg-text" : "w-1.5 bg-line-strong"}`}
+              className={`h-1.5 rounded-full transition-colors duration-200 ${page === i ? "w-5 bg-text" : "w-1.5 bg-line-strong"}`}
             />
           ))}
         </div>

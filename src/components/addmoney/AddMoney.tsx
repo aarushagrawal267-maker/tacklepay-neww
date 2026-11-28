@@ -271,7 +271,7 @@ export function AddMoney() {
                     aria-selected={slide === i}
                     aria-label={`Slide ${i + 1}`}
                     onClick={() => setSlide(i)}
-                    className={`h-1.5 rounded-full transition-all ${slide === i ? "w-4 bg-text" : "w-1.5 bg-line-strong"}`}
+                    className={`h-1.5 rounded-full transition-colors duration-200 ${slide === i ? "w-4 bg-text" : "w-1.5 bg-line-strong"}`}
                   />
                 ))}
               </div>

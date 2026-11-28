@@ -120,7 +120,7 @@ export function Chat() {
       <form onSubmit={send} className="flex shrink-0 items-center gap-2 border-t border-line bg-bg px-3 py-2.5 pb-[max(10px,env(safe-area-inset-bottom))]">
         {!composing && (
           <>
-            <Link href={`/pay/${id}`} className="press flex h-10 items-center rounded-[0.625rem] bg-[linear-gradient(180deg,var(--primary-hi),var(--primary))] px-5 text-sm font-medium text-white">
+            <Link href={`/pay/${id}`} className="press flex h-10 items-center rounded-[0.625rem] bg-primary px-5 text-sm font-medium text-white">
               Pay
             </Link>
             <Link href={`/request/${id}`} className="press flex h-10 items-center rounded-[0.625rem] border border-button-line bg-button px-4 text-sm font-medium text-text shadow-e1">
@@ -218,7 +218,7 @@ function RequestBubble({ msg, contactId, name }: { msg: Extract<Message, { type:
               <button type="button" disabled={busy} onClick={() => respond("decline")} className="press h-9 flex-1 rounded-[0.625rem] border border-button-line bg-button text-sm font-medium shadow-e1">
                 Decline
               </button>
-              <Link href={`/pay/${contactId}?am=${msg.amount}&req=${msg.id}`} className="press grid h-9 flex-1 place-items-center rounded-[0.625rem] bg-[linear-gradient(180deg,var(--primary-hi),var(--primary))] text-sm font-medium text-white">
+              <Link href={`/pay/${contactId}?am=${msg.amount}&req=${msg.id}`} className="press grid h-9 flex-1 place-items-center rounded-[0.625rem] bg-primary text-sm font-medium text-white">
                 Pay
               </Link>
             </div>

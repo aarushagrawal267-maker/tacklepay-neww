@@ -104,7 +104,7 @@ export function Home({ onOpenScanner }: { onOpenScanner: () => void }) {
       <Link
         href="/explore"
         tabIndex={fabVisible ? 0 : -1}
-        className={`press absolute bottom-5 left-1/2 z-10 flex h-12 -translate-x-1/2 items-center gap-1.5 rounded-full bg-[linear-gradient(180deg,var(--primary-hi),var(--primary))] pl-4 pr-5 text-[0.9375rem] font-medium text-white shadow-[0_8px_24px_rgb(31_111_242/0.35),inset_0_1px_0_rgb(255_255_255/0.18)] transition-[opacity,transform] duration-200 ${
+        className={`press absolute bottom-5 left-1/2 z-10 flex h-12 -translate-x-1/2 items-center gap-1.5 rounded-full bg-primary pl-4 pr-5 text-[0.9375rem] font-medium text-white transition-[opacity,transform] duration-200 ${
           fabVisible ? "opacity-100" : "pointer-events-none translate-y-6 opacity-0"
         }`}
       >
@@ -202,11 +202,11 @@ function BusinessSection() {
 
 function PromotionsSection() {
   const fresh = useStore((s) => s.rewards.filter((r) => !r.scratched).length);
-  const items: { href: string; label: string; icon: IconName; color: string; badge?: number }[] = [
-    { href: "/rewards", label: "Rewards", icon: "trophy", color: "#c2570c", badge: fresh },
-    { href: "/offers", label: "Offers", icon: "sell", color: "#d92d20" },
-    { href: "/referrals", label: "Referrals", icon: "group_add", color: "#0e7490" },
-    { href: "/add-money", label: "Add money", icon: "add_circle", color: "#15803d" },
+  const items: { href: string; label: string; icon: IconName; badge?: number }[] = [
+    { href: "/rewards", label: "Rewards", icon: "trophy", badge: fresh },
+    { href: "/offers", label: "Offers", icon: "sell" },
+    { href: "/referrals", label: "Referrals", icon: "group_add" },
+    { href: "/add-money", label: "Add money", icon: "add_circle" },
   ];
   return (
     <section aria-labelledby="promos" className="mt-9">
@@ -216,7 +216,7 @@ function PromotionsSection() {
           <li key={p.href} className="min-w-0">
             <GridTile href={p.href} label={p.label}>
               <span className="relative">
-                <Avatar name={p.label} icon={p.icon} color={p.color} size={52} />
+                <Avatar name={p.label} icon={p.icon} size={52} />
                 {!!p.badge && (
                   <span className="money absolute -right-1.5 -top-1.5 grid h-5 min-w-5 place-items-center rounded-md bg-danger px-1 text-[0.6875rem] font-medium text-white">{p.badge}</span>
                 )}

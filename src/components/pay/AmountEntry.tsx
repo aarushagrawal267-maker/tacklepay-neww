@@ -120,7 +120,7 @@ export function AmountEntry({
           onClick={onNext}
           disabled={!valid}
           aria-label={mode === "pay" ? "Continue to pay" : "Send request"}
-          className="press mt-1 flex h-12 min-w-[11.25rem] items-center justify-center gap-1 rounded-[0.625rem] bg-[linear-gradient(180deg,var(--primary-hi),var(--primary))] px-6 text-[0.9375rem] font-medium text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.18)] transition-opacity disabled:opacity-40"
+          className="press mt-1 flex h-12 min-w-[11.25rem] items-center justify-center gap-1 rounded-[0.625rem] bg-primary px-6 text-[0.9375rem] font-medium text-white transition-opacity disabled:opacity-40"
         >
           {mode === "pay" ? "Continue" : "Send request"}
           <Icon name={mode === "pay" ? "chevron_right" : "send"} size={20} />
