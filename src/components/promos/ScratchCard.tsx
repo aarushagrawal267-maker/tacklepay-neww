@@ -24,22 +24,9 @@ export function ScratchCard({ size = 260, onReveal, children }: { size?: number;
     c.height = Math.round(shown * dpr);
     const ctx = c.getContext("2d", { willReadFrequently: true })!;
     ctx.scale((shown * dpr) / size, (shown * dpr) / size);
-    const g = ctx.createLinearGradient(0, 0, size, size);
-    g.addColorStop(0, "#3b82ff");
-    g.addColorStop(1, "#1f6ff2");
-    ctx.fillStyle = g;
+    // Flat brand blue: the scratch layer is the one bright moment on the reward card.
+    ctx.fillStyle = "#1f6ff2";
     ctx.fillRect(0, 0, size, size);
-    // Confetti-like pattern so scratching feels tactile.
-    ctx.globalAlpha = 0.22;
-    ctx.fillStyle = "#ffffff";
-    for (let i = 0; i < 70; i++) {
-      const x = (i * 97) % size;
-      const y = (i * 53 + (i % 7) * 31) % size;
-      ctx.beginPath();
-      ctx.arc(x, y, 3 + (i % 4), 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.globalAlpha = 1;
     ctx.fillStyle = "#ffffff";
     ctx.font = `500 18px ${getComputedStyle(document.body).fontFamily}`;
     ctx.textAlign = "center";

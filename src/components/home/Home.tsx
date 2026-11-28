@@ -6,7 +6,7 @@ import { Avatar, ContactAvatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { DemoBadge } from "@/components/ui/DemoBadge";
 import { Icon, type IconName } from "@/components/ui/Icon";
-import { LogoMark } from "@/components/ui/Logo";
+import { LogoMark, Wordmark } from "@/components/ui/Logo";
 import { toast } from "@/components/ui/toast";
 import { formatDay, formatTime } from "@/lib/format";
 import { useBusinesses, useRecentPeople } from "@/lib/hooks";
@@ -66,15 +66,16 @@ export function Home({ onOpenScanner }: { onOpenScanner: () => void }) {
         <button type="button" onClick={onOpenScanner} aria-label="Scan QR code" className="press grid size-10 place-items-center rounded-[0.625rem] text-text-2">
           <Icon name="qr_code_scanner" size={22} />
         </button>
-        <span className="flex items-center gap-1.5">
+        {/* From 1024px the side nav shows the wordmark and demo badge, so the header hides its copy there. */}
+        <span className="flex items-center gap-1.5 lg:invisible">
           <LogoMark size={20} />
-          <span className="text-[1.0625rem] font-medium tracking-tight">Tacket</span>
+          <Wordmark className="text-[1.0625rem]" />
           <DemoBadge compact className="ml-1" />
         </span>
         <span className="flex items-center justify-end gap-0.5">
           <ThemeToggle className="sm:hidden" />
           <Link href="/profile" aria-label="Profile" className="press rounded-full p-1">
-            {hydrated ? <Avatar name={name || "You"} color="#1f6ff2" size={30} className="!rounded-full" /> : <span className="skeleton block size-[1.875rem] rounded-full" />}
+            {hydrated ? <Avatar name={name || "You"} size={30} className="!rounded-full" /> : <span className="skeleton block size-[1.875rem] rounded-full" />}
           </Link>
         </span>
       </header>
@@ -104,8 +105,8 @@ export function Home({ onOpenScanner }: { onOpenScanner: () => void }) {
       <Link
         href="/explore"
         tabIndex={fabVisible ? 0 : -1}
-        className={`press absolute bottom-5 left-1/2 z-10 flex h-12 -translate-x-1/2 items-center gap-1.5 rounded-full bg-[linear-gradient(180deg,var(--primary-hi),var(--primary))] pl-4 pr-5 text-[0.9375rem] font-medium text-white shadow-[0_8px_24px_rgb(31_111_242/0.35),inset_0_1px_0_rgb(255_255_255/0.18)] transition-[opacity,transform] duration-200 ${
-          fabVisible ? "opacity-100" : "pointer-events-none translate-y-6 opacity-0"
+        className={`press absolute bottom-5 left-1/2 z-10 flex h-12 -translate-x-1/2 items-center gap-1.5 rounded-full bg-primary pl-4 pr-5 text-[0.9375rem] font-medium text-white shadow-e2 transition-[opacity,translate] duration-200 ${
+          fabVisible ? "opacity-100" : "pointer-events-none translate-y-3 opacity-0"
         }`}
       >
         <Icon name="add" size={22} />
@@ -118,7 +119,7 @@ export function Home({ onOpenScanner }: { onOpenScanner: () => void }) {
 function SectionHeader({ id, title, action }: { id: string; title: string; action?: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <h2 id={id} className="text-[1.0625rem] font-medium tracking-tight">
+      <h2 id={id} className="text-[1.0625rem] font-medium">
         {title}
       </h2>
       {action}
@@ -202,11 +203,11 @@ function BusinessSection() {
 
 function PromotionsSection() {
   const fresh = useStore((s) => s.rewards.filter((r) => !r.scratched).length);
-  const items: { href: string; label: string; icon: IconName; color: string; badge?: number }[] = [
-    { href: "/rewards", label: "Rewards", icon: "trophy", color: "#c2570c", badge: fresh },
-    { href: "/offers", label: "Offers", icon: "sell", color: "#d92d20" },
-    { href: "/referrals", label: "Referrals", icon: "group_add", color: "#0e7490" },
-    { href: "/add-money", label: "Add money", icon: "add_circle", color: "#15803d" },
+  const items: { href: string; label: string; icon: IconName; badge?: number }[] = [
+    { href: "/rewards", label: "Rewards", icon: "trophy", badge: fresh },
+    { href: "/offers", label: "Offers", icon: "sell" },
+    { href: "/referrals", label: "Referrals", icon: "group_add" },
+    { href: "/add-money", label: "Add money", icon: "add_circle" },
   ];
   return (
     <section aria-labelledby="promos" className="mt-9">
@@ -216,7 +217,7 @@ function PromotionsSection() {
           <li key={p.href} className="min-w-0">
             <GridTile href={p.href} label={p.label}>
               <span className="relative">
-                <Avatar name={p.label} icon={p.icon} color={p.color} size={52} />
+                <Avatar name={p.label} icon={p.icon} size={52} />
                 {!!p.badge && (
                   <span className="money absolute -right-1.5 -top-1.5 grid h-5 min-w-5 place-items-center rounded-md bg-danger px-1 text-[0.6875rem] font-medium text-white">{p.badge}</span>
                 )}

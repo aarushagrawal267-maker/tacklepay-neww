@@ -48,7 +48,7 @@ export function PaymentMethods() {
                   <Icon name="account_balance" size={24} />
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-bold">
+                  <span className="block text-sm font-medium">
                     {a.bank} {a.last4}
                   </span>
                   <span className="block text-sm text-text-2">{a.type}</span>
@@ -80,11 +80,11 @@ export function PaymentMethods() {
           <ul className="mt-3 space-y-3">
             {cards.map((c) => (
               <li key={c.id} className="flex items-center gap-4">
-                <span className="grid size-10 place-items-center rounded-[0.625rem] bg-gradient-to-br from-[#3b82ff] to-[#0f4fc2] text-white">
+                <span className="grid size-10 place-items-center rounded-[0.625rem] bg-primary text-primary-ink">
                   <Icon name="credit_card" size={22} />
                 </span>
                 <span>
-                  <span className="block text-sm font-bold">
+                  <span className="block text-sm font-medium">
                     {c.label} •••• {c.last4}
                   </span>
                   <span className="block text-xs text-text-2">For tap, online and QR payments · demo</span>

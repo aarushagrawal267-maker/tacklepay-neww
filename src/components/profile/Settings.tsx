@@ -55,7 +55,7 @@ export function Settings() {
             className="press relative rounded-full"
             aria-label="Edit name"
           >
-            <Avatar name={profile.name} color="#1f6ff2" size={72} />
+            <Avatar name={profile.name} size={72} />
             <span className="absolute -bottom-1 -right-1 grid size-7 place-items-center rounded-lg border border-line bg-surface text-text-2">
               <Icon name="edit" size={16} />
             </span>

@@ -3,6 +3,7 @@ import { Avatar, ContactAvatar } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { Icon } from "@/components/ui/Icon";
 import { LogoMark } from "@/components/ui/Logo";
+import { Perforation } from "@/components/ui/Perforation";
 import { Sheet } from "@/components/ui/Sheet";
 import { formatMoney } from "@/lib/money";
 import type { Account, Contact } from "@/lib/types";
@@ -40,16 +41,22 @@ export function ConfirmSheet({
   return (
     <Sheet open={open} onClose={onClose}>
       <div className="px-6 pb-2 pt-4">
-        <div className="flex flex-col items-center text-center">
-          <div className="flex items-center gap-2">
-            <Avatar name={me} color="#1f6ff2" size={40} />
-            <Icon name="arrow_forward" className="text-text-3" />
-            <ContactAvatar contact={contact} size={40} />
+        {/* A ticket stub: who pays whom above the perforation, the fare below it. */}
+        <div className="stub rounded-2xl text-center [--notch:var(--surface)]">
+          <div className="flex flex-col items-center px-5 pb-3 pt-4">
+            <div className="flex items-center gap-2">
+              <Avatar name={me} size={40} />
+              <Icon name="arrow_forward" className="text-text-3" />
+              <ContactAvatar contact={contact} size={40} />
+            </div>
+            <p className="mt-2 text-sm text-text-2">Paying {contact.name}</p>
           </div>
-          <p className="mt-2 text-sm text-text-2">Paying {contact.name}</p>
-          <p className="money mt-1 text-[2.375rem] font-medium leading-tight">{formatMoney(amount)}</p>
-          {note && <p className="text-sm text-text-2">“{note}”</p>}
-          {detail}
+          <Perforation />
+          <div className="flex flex-col items-center px-5 pb-4 pt-2">
+            <p className="money text-[2.375rem] font-medium leading-tight">{formatMoney(amount)}</p>
+            {note && <p className="text-sm text-text-2">“{note}”</p>}
+            {detail}
+          </div>
         </div>
 
         <fieldset className="mt-6">

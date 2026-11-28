@@ -40,11 +40,10 @@ export function Offers() {
             <li key={o.id} className="w-[84%] shrink-0 snap-start">
               <article className="flex h-[26.25rem] flex-col overflow-hidden rounded-2xl bg-surface-2">
                 <div className="relative grid h-48 place-items-center text-white" style={{ background: o.tone }}>
-                  <span className="absolute inset-0 bg-[radial-gradient(circle_at_80%_10%,rgb(255_255_255/0.25),transparent_45%)]" />
                   <Icon name={o.icon} size={84} />
                 </div>
                 <div className="flex flex-1 flex-col p-5">
-                  <p className="text-xs uppercase tracking-wider text-text-2">From {o.from}</p>
+                  <p className="text-xs text-text-2">From {o.from}</p>
                   <h2 className="mt-1 text-lg font-medium leading-snug">{o.title}</h2>
                   <p className="mt-1 line-clamp-2 text-sm text-text-2">{o.description}</p>
                   <p className="mt-auto text-xs text-text-3">{o.expires} · demo reward</p>
@@ -58,7 +57,7 @@ export function Offers() {
         </ul>
         <div className="mt-4 flex justify-center gap-1.5" aria-hidden="true">
           {OFFERS.map((o, i) => (
-            <span key={o.id} className={`h-1.5 rounded-full transition-all ${i === index ? "w-5 bg-text" : "w-1.5 bg-line-strong"}`} />
+            <span key={o.id} className={`h-1.5 rounded-full transition-colors duration-200 ${i === index ? "w-5 bg-text" : "w-1.5 bg-line-strong"}`} />
           ))}
         </div>
       </ScrollBody>

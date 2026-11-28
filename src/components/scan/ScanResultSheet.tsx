@@ -77,7 +77,7 @@ function Body({ outcome, onClose }: { outcome: Shown; onClose: () => void }) {
           Copy
         </Button>
         {p.kind === "link" ? (
-          <a href={p.url} target="_blank" rel="noopener noreferrer" className="press inline-flex h-11 flex-1 items-center justify-center rounded-[0.625rem] bg-[linear-gradient(180deg,var(--primary-hi),var(--primary))] text-[0.9375rem] font-medium text-white">
+          <a href={p.url} target="_blank" rel="noopener noreferrer" className="press inline-flex h-11 flex-1 items-center justify-center rounded-[0.625rem] bg-primary text-[0.9375rem] font-medium text-white">
             Open link
           </a>
         ) : (

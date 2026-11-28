@@ -12,7 +12,7 @@ import { toast } from "@/components/ui/toast";
 import { TopBar } from "@/components/ui/TopBar";
 import { errorText, tpiApi } from "@/lib/api";
 import { formatMoney } from "@/lib/money";
-import { BILL_CATEGORIES, colorFor } from "@/lib/seed";
+import { BILL_CATEGORIES } from "@/lib/seed";
 import { useHydrated, useStore } from "@/lib/store";
 import type { LinkedBill } from "@/lib/types";
 
@@ -77,7 +77,7 @@ export function BillProvider() {
         <form onSubmit={submit} className="flex min-h-0 flex-1 flex-col" noValidate>
           <ScrollBody className="space-y-5 px-5 pt-6">
             <div className="flex items-center gap-3">
-              <Avatar name={prov.name} color={colorFor(prov.name)} size={40} />
+              <Avatar name={prov.name} size={40} />
               <span className="text-[0.9375rem] font-medium">{prov.name}</span>
             </div>
             <Field
@@ -97,7 +97,7 @@ export function BillProvider() {
             </p>
           </ScrollBody>
           <div className="flex justify-end p-5">
-            <button type="submit" aria-label="Link account" className="press grid size-14 place-items-center rounded-2xl bg-[linear-gradient(180deg,var(--primary-hi),var(--primary))] text-white shadow-e2">
+            <button type="submit" aria-label="Link account" className="press grid size-14 place-items-center rounded-2xl bg-primary text-white shadow-e2">
               <Icon name="chevron_right" size={30} />
             </button>
           </div>
@@ -127,7 +127,7 @@ export function BillProvider() {
               {accounts.map((b) => (
                 <li key={b.id} className="rounded-2xl bg-surface-2 p-5">
                   <div className="flex items-center gap-3">
-                    <Avatar name={prov.name} color={colorFor(prov.name)} size={40} />
+                    <Avatar name={prov.name} size={40} />
                     <div className="min-w-0">
                       <p className="truncate text-[0.9375rem] font-medium">{b.label ?? prov.name}</p>
                       <p className="truncate text-xs text-text-2">{b.accountNumber}</p>

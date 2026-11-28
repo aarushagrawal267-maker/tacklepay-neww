@@ -82,7 +82,7 @@ export function PeopleAndBills({ query }: { query: string }) {
         <div className="-mx-2 space-y-1">
           <button
             type="button"
-            className="press flex w-full items-center gap-4 rounded-xl px-2 py-3 text-left text-sm font-bold text-text"
+            className="press flex w-full items-center gap-4 rounded-xl px-2 py-3 text-left text-sm font-medium text-text"
             onClick={() => {
               setHandle("");
               setError(undefined);

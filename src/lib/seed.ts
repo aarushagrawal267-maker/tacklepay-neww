@@ -108,14 +108,14 @@ export interface Promo {
 }
 
 export const POPULAR_PROMOS: Promo[] = [
-  { id: "p-trip", title: "Popular! Get 8% off SkyHop flights", subtitle: "Save up to ₹1,000 on your flight", image: "/images/travel.jpg", brand: "SkyHop Air" },
+  { id: "p-trip", title: "Get 8% off SkyHop flights", subtitle: "Save up to ₹1,000 on your flight", image: "/images/travel.jpg", brand: "SkyHop Air" },
   { id: "p-bus", title: "Save up to ₹300 on your first BusBee ticket", subtitle: "Use code TPFIRST, now till Nov 30", image: "/images/bus.jpg", brand: "BusBee" },
   { id: "p-gift", title: "Get 20% off your first Dropkart order", subtitle: "Save up to ₹100, now till Dec 31", image: "/images/gift.jpg", brand: "Dropkart" },
 ];
 
 export const FOOD_PROMO: Promo = {
   id: "p-food",
-  title: "Feeling hungry? Discover restaurants here now!",
+  title: "Feeling hungry? Discover restaurants here",
   subtitle: "Tiffin Co",
   image: "/images/food.jpg",
   brand: "Tiffin Co",

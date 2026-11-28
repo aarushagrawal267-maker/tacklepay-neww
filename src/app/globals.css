@@ -18,7 +18,6 @@
   --text-2: #5f6670;
   --text-3: #8b929b;
   --primary: #1f6ff2;
-  --primary-hi: #3b82ff;
   --primary-fg: #1764e8;
   --primary-ink: #ffffff;
   --primary-soft: #eaf2ff;
@@ -60,7 +59,6 @@
   --text-2: #a3a3a3;
   --text-3: #737373;
   --primary: #1f6ff2;
-  --primary-hi: #3b82ff;
   --primary-fg: #5b9bff;
   --primary-ink: #ffffff;
   --primary-soft: #0c1a33;
@@ -213,13 +211,13 @@ body {
 @keyframes screen-in {
   from {
     opacity: 0;
-    transform: translateX(28px);
+    transform: translateX(12px);
   }
 }
 @keyframes rise-in {
   from {
     opacity: 0;
-    transform: translateY(24px);
+    transform: translateY(8px);
   }
 }
 @keyframes sheet-in {
@@ -370,6 +368,50 @@ body {
   background-size: 4px 1px;
 }
 
+/* Stub edge (see ui/Perforation.tsx): the dashed tear line with a notch cut into each side.
+   A .stub card clips its overflow and draws its hairline on a ::before layer behind all of
+   its children (an isolated stacking context with the line at z-index -1). Each notch is a circle centred on the card edge: the clip removes
+   its outer half and its fill covers the hairline, leaving a half-round bite outlined in the
+   same line. */
+.stub {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.stub::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--line);
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: -1;
+}
+.perforation {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 1rem;
+  padding-inline: 1rem;
+}
+.perforation::before,
+.perforation::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 9999px;
+  background: var(--notch, var(--bg));
+  border: 1px solid var(--line);
+}
+.perforation::before {
+  left: -0.5rem;
+}
+.perforation::after {
+  right: -0.5rem;
+}
+
 /* Material-ish state layer for pressable surfaces. */
 .press {
   position: relative;
@@ -408,6 +450,5 @@ body {
 .money {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.01em;
 }
 }

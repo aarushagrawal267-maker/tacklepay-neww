@@ -73,7 +73,7 @@ export function MyCode() {
               aria-selected={page === i}
               aria-label={label}
               onClick={() => goTo(i)}
-              className={`h-1.5 rounded-full transition-all ${page === i ? "w-5 bg-text" : "w-1.5 bg-line-strong"}`}
+              className={`h-1.5 rounded-full transition-colors duration-200 ${page === i ? "w-5 bg-text" : "w-1.5 bg-line-strong"}`}
             />
           ))}
         </div>
@@ -83,7 +83,7 @@ export function MyCode() {
       <div ref={pager} className="no-scrollbar flex min-h-0 flex-1 snap-x snap-mandatory overflow-x-auto">
         <section className="flex w-full shrink-0 snap-start flex-col items-center justify-center overflow-y-auto px-8 pb-6 text-center" aria-label="Profile">
           <DottedRing size={260}>
-            <Avatar name={profile.name} color="#1f6ff2" size={104} className="!rounded-full" />
+            <Avatar name={profile.name} size={104} className="!rounded-full" />
           </DottedRing>
           <h1 className="mt-5 text-[1.375rem]">{profile.name}</h1>
           <p className="mt-2 text-sm text-text-2">Friends can scan your QR code to pay you demo money</p>
@@ -102,7 +102,7 @@ export function MyCode() {
             {link ? <QrCode value={link} size={208} label={`QR code to pay ${profile.name}`} /> : <div className="skeleton size-64 rounded-2xl" />}
           </div>
           <p className="mt-4 text-xs text-text-2">{profile.handle}</p>
-          <h1 className="mt-5 text-lg font-bold">{profile.name}</h1>
+          <h1 className="mt-5 text-lg font-medium">{profile.name}</h1>
           {profile.phone && <p className="text-[0.8125rem]">{profile.phone}</p>}
           {amount ? (
             <p className="mt-3 flex items-center gap-2 rounded-[0.625rem] bg-primary-soft py-1 pl-3 pr-1 text-sm text-primary-fg">
@@ -155,7 +155,7 @@ function AmountSheet({ open, onClose, onSave }: { open: boolean; onClose: () => 
           }
         }}
       >
-        <label className="flex h-16 items-center gap-1 rounded-2xl border-2 border-primary-fg px-4 text-3xl font-bold">
+        <label className="flex h-16 items-center gap-1 rounded-2xl border-2 border-primary-fg px-4 text-3xl font-medium">
           <span>{CURRENCY_SYMBOL}</span>
           <input
             data-autofocus

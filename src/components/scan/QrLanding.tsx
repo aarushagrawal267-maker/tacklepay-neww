@@ -54,7 +54,7 @@ export function QrLanding() {
         </>
       ) : (
         <>
-          <LogoMark size={56} className="animate-pulse" />
+          <LogoMark size={56} />
           <p className="text-sm text-text-2" role="status">
             Opening code…
           </p>

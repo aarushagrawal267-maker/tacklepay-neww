@@ -20,7 +20,7 @@ export function Referrals() {
   );
 
   const share = async (to?: string) => {
-    const text = `${to ? `Hi ${to}! ` : ""}Try TacketPay — a payments app that runs on demo money. Use my code ${code}.`;
+    const text = `${to ? `Hi ${to}, ` : ""}Try TacketPay — a payments app that runs on demo money. Use my code ${code}.`;
     try {
       if (navigator.share) await navigator.share({ title: "TacketPay", text, url: window.location.origin });
       else {
@@ -72,7 +72,7 @@ export function Referrals() {
             <span className="money block text-lg font-medium tracking-widest">{code}</span>
             <span className="block text-xs text-text-2">Your referral code · tap to copy</span>
           </button>
-          <button type="button" onClick={() => share()} className="press h-9 rounded-[0.625rem] bg-[linear-gradient(180deg,var(--primary-hi),var(--primary))] px-4 text-sm font-medium text-white">
+          <button type="button" onClick={() => share()} className="press h-9 rounded-[0.625rem] bg-primary px-4 text-sm font-medium text-white">
             Share
           </button>
         </section>

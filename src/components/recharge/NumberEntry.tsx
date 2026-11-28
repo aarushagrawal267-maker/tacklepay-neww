@@ -77,7 +77,7 @@ export function NumberEntry({
         onClick={() => ready && onPick(digits)}
         disabled={!ready}
         aria-label="Continue"
-        className={`press absolute bottom-6 right-5 grid size-14 place-items-center rounded-2xl shadow-e2 transition-colors ${ready ? "bg-[linear-gradient(180deg,var(--primary-hi),var(--primary))] text-white" : "bg-surface-3 text-text-3"}`}
+        className={`press absolute bottom-6 right-5 grid size-14 place-items-center rounded-2xl shadow-e2 transition-colors ${ready ? "bg-primary text-white" : "bg-surface-3 text-text-3"}`}
       >
         <Icon name="chevron_right" size={30} />
       </button>

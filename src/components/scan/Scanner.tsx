@@ -90,7 +90,7 @@ export function Scanner({ active, onClose }: { active: boolean; onClose: () => v
           <path d="M307 250v30a27 27 0 0 1-27 27h-30" stroke="#ffffff" />
           <path d="M60 307H30A27 27 0 0 1 3 280v-30" stroke="#ffffff" />
         </svg>
-        {status === "live" && <div className="absolute inset-x-5 top-5 h-0.5 rounded-full bg-[#3b82ff] shadow-[0_0_14px_3px_rgba(59,130,255,0.7)] [animation:scan-line_2.6s_ease-in-out_infinite]" />}
+        {status === "live" && <div className="absolute inset-x-5 top-5 h-0.5 rounded-full bg-primary [animation:scan-line_2.6s_ease-in-out_infinite]" />}
         {status === "starting" && (
           <div className="absolute inset-0 grid place-items-center">
             <span className="animate-spin-slow size-10 rounded-full border-4 border-white/30 border-t-white" />
