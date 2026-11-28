@@ -369,8 +369,24 @@ body {
 }
 
 /* Stub edge (see ui/Perforation.tsx): the dashed tear line with a notch cut into each side.
-   The notches are full circles centred on the card's 1px border; the card's overflow-hidden
-   clips their outer half, leaving a half-round bite outlined in the same hairline. */
+   A .stub card clips its overflow and draws its hairline on a ::before layer behind all of
+   its children (an isolated stacking context with the line at z-index -1). Each notch is a circle centred on the card edge: the clip removes
+   its outer half and its fill covers the hairline, leaving a half-round bite outlined in the
+   same line. */
+.stub {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+.stub::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--line);
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: -1;
+}
 .perforation {
   position: relative;
   display: flex;
@@ -390,10 +406,10 @@ body {
   border: 1px solid var(--line);
 }
 .perforation::before {
-  left: calc(-0.5rem - 0.5px);
+  left: -0.5rem;
 }
 .perforation::after {
-  right: calc(-0.5rem - 0.5px);
+  right: -0.5rem;
 }
 
 /* Material-ish state layer for pressable surfaces. */

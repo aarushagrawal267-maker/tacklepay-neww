@@ -89,7 +89,7 @@ export function Receipt() {
       />
       <main className="relative min-h-0 flex-1 overflow-y-auto">
         {/* One stub: the amount on top, torn along the perforation from the counterfoil details. */}
-        <article className="mx-4 mt-3 overflow-hidden rounded-2xl border border-line bg-surface">
+        <article className="stub mx-4 mt-3 rounded-2xl bg-surface">
           <section className="relative px-6 pb-6 pt-7 text-center">
             <Watermark />
             {reversed ? (

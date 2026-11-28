@@ -40,7 +40,7 @@ export function WalletPanel() {
     <aside aria-label="Wallet" className="wallet-panel h-dvh w-[21rem] shrink-0 flex-col gap-4 overflow-y-auto px-5 py-6">
       {signedIn ? (
         <>
-          <section className="overflow-hidden rounded-2xl border border-line p-5">
+          <section className="stub rounded-2xl p-5">
             <div className="flex items-center justify-between">
               <h2 className="text-sm text-text-2">Total balance</h2>
               <DemoBadge compact />

@@ -42,7 +42,7 @@ export function ConfirmSheet({
     <Sheet open={open} onClose={onClose}>
       <div className="px-6 pb-2 pt-4">
         {/* A ticket stub: who pays whom above the perforation, the fare below it. */}
-        <div className="overflow-hidden rounded-2xl border border-line text-center [--notch:var(--surface)]">
+        <div className="stub rounded-2xl text-center [--notch:var(--surface)]">
           <div className="flex flex-col items-center px-5 pb-3 pt-4">
             <div className="flex items-center gap-2">
               <Avatar name={me} size={40} />
